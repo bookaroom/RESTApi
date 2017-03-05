@@ -8,6 +8,6 @@
 	- Connect to Amazon EC2 file directory using Filezilla: http://stackoverflow.com/questions/16744863/connect-to-amazon-ec2-file-directory-using-filezilla-and-sftp
 
 3. Restart the server if necessary. Sometimes, changes take a few mins. or longer to show up.
-$ sudo service tomcat6 stop
-$ sudo service tomcat6 start
+	- $ sudo service tomcat6 stop
+	- $ sudo service tomcat6 start
 
