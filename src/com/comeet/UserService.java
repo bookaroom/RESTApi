@@ -1,5 +1,6 @@
 package com.comeet;  
 
+import java.util.ArrayList;
 import java.util.List; 
 import javax.ws.rs.GET; 
 import javax.ws.rs.Path; 
@@ -8,11 +9,16 @@ import javax.ws.rs.core.MediaType;
 @Path("/UserService") 
 
 public class UserService {  
-   UserDao userDao = new UserDao();  
+   
+   RoomsDao roomsDao = new RoomsDao();
+   
+   
    @GET 
-   @Path("/users") 
+   @Path("/rooms") 
    @Produces(MediaType.APPLICATION_XML) 
-   public List<User> getUsers(){ 
-      return userDao.getAllUsers(); 
+   public List<Room> getRooms() { 
+
+	   return roomsDao.getAllRooms(); 
+
    }  
 }
