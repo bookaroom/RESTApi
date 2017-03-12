@@ -55,7 +55,7 @@ public class RoomsDao {
 	
 
 	
-	   public List<String> getRoomsList() throws Exception{ 
+	   public List<EmailAddress> getRoomsList() throws Exception{ 
 
 
 
@@ -65,7 +65,7 @@ public class RoomsDao {
 		   service.setUrl(new URI("https://outlook.office365.com/EWS/Exchange.asmx"));
 
 		   
-		   List<String> names = new ArrayList<String>();
+		   List<EmailAddress> names = new ArrayList<EmailAddress>();
 		   
 		   EmailAddressCollection c = service.getRoomLists();
 		   for (EmailAddress e: c){
@@ -74,7 +74,9 @@ public class RoomsDao {
 			   
 			   for(EmailAddress r: rooms){
 				   System.out.println(r.toString());
-				   names.add(r.toString());
+				   System.out.println(r.getAddress());
+				   System.out.println(r.getName());
+				   names.add(r);
 			   }
 			   
 		   }
@@ -86,7 +88,7 @@ public class RoomsDao {
 	
 	
    public List<Room> getAllRooms(){ 
-	   List<String> rooms = null;
+	   List<EmailAddress> rooms = null;
 	   try {
 		 rooms = getRoomsList();
 	} catch (Exception e1) {
@@ -104,11 +106,13 @@ public class RoomsDao {
         	
         	roomList = new ArrayList<Room>(); 
         	 
-        	int count = 1;
-        	for(String s: rooms){
-        		Room room = new Room(count, "Room", s); 
+ 
+        	for(EmailAddress s: rooms){
+        		Room room = new Room();
+        		room.setName(s.getName());
+        		room.setEmail(s.getAddress());
         		roomList.add(room);
-        		count++;
+
         	}
         	
             //User user = new User(1, "Peter", "Teacher"); 

@@ -15,7 +15,8 @@ public class UserService {
    
    @GET 
    @Path("/rooms") 
-   @Produces(MediaType.APPLICATION_XML) 
+  @Produces("application/json")
+  // @Produces(MediaType.APPLICATION_XML) 
    public List<Room> getRooms() { 
 
 	   return roomsDao.getAllRooms(); 
