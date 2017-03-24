@@ -13,10 +13,12 @@ public class Room implements Serializable {
    private String country = "USA";
    private String state = "";
    private String metroarea = "";
+   private String building = "";
    private String latitude = "";
    private String longitude = "";
    private Integer capacity = -1;
-
+   private String navigation = "";
+   private String roomPicture = "";
    
    
    public Room(){} 
@@ -96,8 +98,43 @@ public class Room implements Serializable {
    } 	
    
    
+   public void setNavigationMap(String url){
+	   this.navigation = url;
+   }
    
+   @XmlElement
+   public String getNavigationMap(){
+	   return this.navigation;
+   }
   
+   public void setBuilding(String building){
+	   this.building = building;
+   }
    
+   @XmlElement
+   public String getBuilding()
+   {
+	   return this.building;
+   }
+   
+   public void setCapacity(Integer capacity){
+	   this.capacity = capacity;
+   }
+   
+   @XmlElement
+   public Integer getCapacity()
+   {
+	   return this.capacity;
+   }
+   
+   public void setRoomPic(String picture){
+	   this.roomPicture = picture;
+   }
+   
+   @XmlElement
+   public String getRoomPic()
+   {
+	   return this.roomPicture;
+   }
   
 } 

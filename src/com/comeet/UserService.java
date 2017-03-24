@@ -10,7 +10,7 @@ import javax.ws.rs.core.MediaType;
 
 public class UserService {  
    
-   RoomsDao roomsDao = new RoomsDao();
+   
    
    
    @GET 
@@ -18,8 +18,18 @@ public class UserService {
   @Produces("application/json")
   // @Produces(MediaType.APPLICATION_XML) 
    public List<Room> getRooms() { 
-
+	   RoomsDao roomsDao = new RoomsDao(); //each call should define new instance of DAO object
 	   return roomsDao.getAllRooms(); 
 
-   }  
+   }
+   
+/*   @GET 
+   @Path("/meetings/userid") //userid is an email 
+  @Produces("application/json")
+  // @Produces(MediaType.APPLICATION_XML) 
+   public List<Room> getUserMeetings() { 
+	   MeetingsDao meetingsDao = new MeetingsDao();
+	   return meetingsDao.getUserMeetings(String email); 
+
+   }  */
 }

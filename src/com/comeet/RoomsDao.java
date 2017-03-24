@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import com.comeet.data.*;
 
 import microsoft.exchange.webservices.data.*;
 import microsoft.exchange.webservices.data.autodiscover.IAutodiscoverRedirectionUrl;
@@ -36,7 +37,7 @@ import microsoft.exchange.webservices.data.property.complex.EmailAddressCollecti
 import microsoft.exchange.webservices.data.search.CalendarView;
 import microsoft.exchange.webservices.data.search.FindItemsResults;
 
-import java.net.URI;;
+import java.net.URI;
 
 
 
@@ -111,8 +112,8 @@ public class RoomsDao {
         		Room room = new Room();
         		room.setName(s.getName());
         		room.setEmail(s.getAddress());
+        		retrieveMetadata(room);
         		roomList.add(room);
-
         	}
         	
             //User user = new User(1, "Peter", "Teacher"); 
@@ -146,5 +147,27 @@ public class RoomsDao {
       } catch (IOException e) { 
          e.printStackTrace(); 
       } 
-   }    
+   }
+   
+   private void retrieveMetadata(Room room)
+   {
+	   DataRepository db = new DataRepository();
+
+	   Room metadata = db.retrieveRoomMetadata(room.getEmail());
+	   
+	   if(metadata != null)
+	   {
+		   room.setCapacity(metadata.getCapacity());
+		   room.setCountry(metadata.getCountry());
+		   room.setBuilding(metadata.getBuilding());
+		   room.setNavigationMap(metadata.getNavigationMap());
+		   room.setLatitude(metadata.getLatitude());
+		   room.setCapacity(metadata.getCapacity());
+		   room.setLongitude(metadata.getLongitude());
+		   room.setMetroarea(metadata.getMetroarea());
+		   room.setState(metadata.getState());
+		   room.setRoomPic(metadata.getRoomPic());
+	   }
+	   
+   }
 }
