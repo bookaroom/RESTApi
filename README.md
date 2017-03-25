@@ -18,6 +18,6 @@
 2. Install maven on your local machine
 2. Load the project as a Maven project
 
-#Debugging the program
+# Debugging the program
 
 To do local testing, you need to make sure you have Apache Tomcat installed on the machine and create an Apache Tomcat run configuration. 
