@@ -25,7 +25,11 @@ import microsoft.exchange.webservices.data.core.ExchangeService;
 import microsoft.exchange.webservices.data.core.PropertySet;
 import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion;
 import microsoft.exchange.webservices.data.core.enumeration.property.WellKnownFolderName;
+import microsoft.exchange.webservices.data.core.enumeration.service.ConflictResolutionMode;
+
+
 import microsoft.exchange.webservices.data.core.exception.service.local.ServiceLocalException;
+import microsoft.exchange.webservices.data.core.exception.service.remote.ServiceResponseException;
 import microsoft.exchange.webservices.data.core.service.folder.CalendarFolder;
 import microsoft.exchange.webservices.data.core.service.item.Appointment;
 import microsoft.exchange.webservices.data.core.service.schema.AppointmentSchema;
@@ -34,10 +38,15 @@ import microsoft.exchange.webservices.data.credential.WebCredentials;
 import microsoft.exchange.webservices.data.misc.ITraceListener;
 import microsoft.exchange.webservices.data.property.complex.EmailAddress;
 import microsoft.exchange.webservices.data.property.complex.EmailAddressCollection;
+import microsoft.exchange.webservices.data.property.complex.MessageBody;
+import microsoft.exchange.webservices.data.property.complex.recurrence.pattern.Recurrence;
+import microsoft.exchange.webservices.data.property.complex.time.TimeZoneDefinition;
 import microsoft.exchange.webservices.data.search.CalendarView;
 import microsoft.exchange.webservices.data.search.FindItemsResults;
 
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
 
 
 
@@ -50,7 +59,44 @@ public class RoomsDao {
 	        return redirectionUrl.toLowerCase().startsWith("https://");
 	    }
 	}*/
+	
+	public ExchangeService getService() throws URISyntaxException{
+		ExchangeService service = new ExchangeService(ExchangeVersion.Exchange2010_SP2);
+		ExchangeCredentials credentials = new WebCredentials("adminish@meetl.ink", "Springe599");
+		service.setCredentials(credentials);
+		service.setUrl(new URI("https://outlook.office365.com/EWS/Exchange.asmx"));
+		
+		return service;
+		
+	}
+	
 
+	
+	public List<Meeting> makeAppointment() throws ServiceResponseException, Exception{
+		
+		
+		Appointment appointment = new Appointment(getService());
+		appointment.setSubject("Test Subject");
+		appointment.setBody(MessageBody.getMessageBodyFromText("Test Body"));
+
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Date startDate = formatter.parse("2017-05-23 1:00:00");
+		Date endDate = formatter.parse("2017-05-23 3:00:00");
+		appointment.setStart(startDate);
+		appointment.setEnd(endDate); 
+
+		appointment.setRecurrence(null);
+
+		appointment.getRequiredAttendees().add("CambMa1Story305@meetl.ink");
+		appointment.getRequiredAttendees().add("jablack@meetl.ink");
+				
+		appointment.save();
+
+		List<Meeting> list = new ArrayList<Meeting>();
+
+		return list;
+	}
+	
 	
 
 	
