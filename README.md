@@ -11,3 +11,13 @@
 	- $ sudo service tomcat6 stop
 	- $ sudo service tomcat6 start
 
+
+# Setting up the project
+
+1. Download Eclipse Java Neon EE IDE
+2. Install maven on your local machine
+2. Load the project as a Maven project
+
+#Debugging the program
+
+To do local testing, you need to make sure you have Apache Tomcat installed on the machine and create an Apache Tomcat run configuration. 
