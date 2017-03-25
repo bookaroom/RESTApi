@@ -72,23 +72,28 @@ public class RoomsDao {
 	
 
 	
-	public List<Meeting> makeAppointment() throws ServiceResponseException, Exception{
+	public List<Meeting> makeAppointment(String start, String end, String subject, String body, List<String> recips) throws ServiceResponseException, Exception{
 		
+		
+		//?start=2017-05-23|9:00:00&end=2017-05-23|9:00:00&subject=testSubject&body=testBody&recipients=CambMa1Story305@meetl.ink,jablack@meetl.ink
 		
 		Appointment appointment = new Appointment(getService());
-		appointment.setSubject("Test Subject");
-		appointment.setBody(MessageBody.getMessageBodyFromText("Test Body"));
+		appointment.setSubject(subject);
+		appointment.setBody(MessageBody.getMessageBodyFromText(body));
 
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		Date startDate = formatter.parse("2017-05-23 1:00:00");
-		Date endDate = formatter.parse("2017-05-23 3:00:00");
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd|HH:mm:ss");
+		Date startDate = formatter.parse(start); //"2017-05-23|5:00:00");
+		Date endDate = formatter.parse(end); //"2017-05-23|6:00:00");
 		appointment.setStart(startDate);
 		appointment.setEnd(endDate); 
 
 		appointment.setRecurrence(null);
 
-		appointment.getRequiredAttendees().add("CambMa1Story305@meetl.ink");
-		appointment.getRequiredAttendees().add("jablack@meetl.ink");
+		for(String s: recips){
+			appointment.getRequiredAttendees().add(s);
+		}
+		//appointment.getRequiredAttendees().add("CambMa1Story305@meetl.ink");
+		//appointment.getRequiredAttendees().add("jablack@meetl.ink");
 				
 		appointment.save();
 
