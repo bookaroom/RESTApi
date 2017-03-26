@@ -1,140 +1,133 @@
-package com.comeet;  
+package com.comeet;
 
-import java.io.Serializable;  
-import javax.xml.bind.annotation.XmlElement; 
-import javax.xml.bind.annotation.XmlRootElement; 
-@XmlRootElement(name = "room") 
+import java.io.Serializable;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
-public class Room implements Serializable {  
-   private static final long serialVersionUID = 1L; 
-   private String name = "";
-   private String email = "";
-   private String address = "";
-   private String country = "USA";
-   private String state = "";
-   private String metroarea = "";
-   private String building = "";
-   private String latitude = "";
-   private String longitude = "";
-   private Integer capacity = -1;
-   private String navigation = "";
-   private String roomPicture = "";
-   
-   
-   public Room(){} 
+@XmlRootElement(name = "room")
+public class Room implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private String name = "";
+    private String email = "";
+    private String address = "";
+    private String country = "USA";
+    private String state = "";
+    private String metroarea = "";
+    private String building = "";
+    private String latitude = "";
+    private String longitude = "";
+    private Integer capacity = -1;
+    private String navigation = "";
+    private String roomPicture = "";
 
-   
- 
-   public String getName() { 
-	      return name; 
-   }
-   
-   @XmlElement 
-   public void setName(String name) { 
-	   this.name = name;
-   } 
-	   
-   public String getEmail() { 
-	      return email; 
-   }
+    public Room() {}
 
-   @XmlElement 
-   public void setEmail(String email) { 
-	   this.email = email;
-   } 
+    public String getName() {
+        return name;
+    }
 
-   public String getAddress() { 
-	      return address; 
-   }
+    @XmlElement
+    public void setName(String name) {
+        this.name = name;
+    }
 
-   @XmlElement 
-   public void setAddress(String email) { 
-	   this.address = address;
-   } 
+    public String getEmail() {
+        return email;
+    }
 
-   public String getCountry() { 
-	      return country; 
-   }
+    @XmlElement
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-   @XmlElement 
-   public void setCountry(String country) { 
-	   this.country = country;
-   } 
-	  
-   public String getState() { 
-	      return state; 
-   }
+    public String getAddress() {
+        return address;
+    }
 
-   @XmlElement 
-   public void setState(String state) { 
-	   this.state = state;
-   } 
-   
-   public String getMetroarea() { 
-	      return metroarea;
-   }
+    @XmlElement
+    public void setAddress(String email) {
+        this.address = email;
+    }
 
-   @XmlElement 
-   public void setMetroarea(String metroarea) { 
-	   this.metroarea = metroarea;
-   } 
-   
-   public String getLatitude() { 
-	      return latitude;
-   }
+    public String getCountry() {
+        return country;
+    }
 
-   @XmlElement 
-   public void setLatitude(String latitude) { 
-	   this.latitude = latitude;
-   } 	
-   
-   public String getLongitude() { 
-	      return longitude;
-   }
+    @XmlElement
+    public void setCountry(String country) {
+        this.country = country;
+    }
 
-   @XmlElement 
-   public void setLongitude(String longitude) { 
-	   this.longitude = longitude;
-   } 	
-   
-   
-   public void setNavigationMap(String url){
-	   this.navigation = url;
-   }
-   
-   @XmlElement
-   public String getNavigationMap(){
-	   return this.navigation;
-   }
-  
-   public void setBuilding(String building){
-	   this.building = building;
-   }
-   
-   @XmlElement
-   public String getBuilding()
-   {
-	   return this.building;
-   }
-   
-   public void setCapacity(Integer capacity){
-	   this.capacity = capacity;
-   }
-   
-   @XmlElement
-   public Integer getCapacity()
-   {
-	   return this.capacity;
-   }
-   
-   public void setRoomPic(String picture){
-	   this.roomPicture = picture;
-   }
-   
-   @XmlElement
-   public String getRoomPic()
-   {
-	   return this.roomPicture;
-   }
-  
-} 
+    public String getState() {
+        return state;
+    }
+
+    @XmlElement
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public String getMetroarea() {
+        return metroarea;
+    }
+
+    @XmlElement
+    public void setMetroarea(String metroarea) {
+        this.metroarea = metroarea;
+    }
+
+    public String getLatitude() {
+        return latitude;
+    }
+
+    @XmlElement
+    public void setLatitude(String latitude) {
+        this.latitude = latitude;
+    }
+
+    public String getLongitude() {
+        return longitude;
+    }
+
+    @XmlElement
+    public void setLongitude(String longitude) {
+        this.longitude = longitude;
+    }
+
+    public void setNavigationMap(String url) {
+        this.navigation = url;
+    }
+
+    @XmlElement
+    public String getNavigationMap() {
+        return this.navigation;
+    }
+
+    public void setBuilding(String building) {
+        this.building = building;
+    }
+
+    @XmlElement
+    public String getBuilding() {
+        return this.building;
+    }
+
+    public void setCapacity(Integer capacity) {
+        this.capacity = capacity;
+    }
+
+    @XmlElement
+    public Integer getCapacity() {
+        return this.capacity;
+    }
+
+    public void setRoomPic(String picture) {
+        this.roomPicture = picture;
+    }
+
+    @XmlElement
+    public String getRoomPic() {
+        return this.roomPicture;
+    }
+
+}
