@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,55 +29,40 @@ import microsoft.exchange.webservices.data.property.complex.MessageBody;
 
 public class RoomsDao {
 
-    /*
-     * static class RedirectionUrlCallback implements IAutodiscoverRedirectionUrl { public boolean
-     * autodiscoverRedirectionUrlValidationCallback( String redirectionUrl) { return
-     * redirectionUrl.toLowerCase().startsWith("https://"); } }
-     */
-
     /**
-     * Gets the Exchange ews service.
-     * 
-     * @return Ews Service connection.
-     * @throws URISyntaxException When the hardcoded uri is malformed.
+     * Creates an appointment.
+     * @param start Appointment start time.
+     * @param end Appointment end time.
+     * @param subject The subject line.
+     * @param body Body text for the appointment
+     * @param recips Recipient list.
+     * @return The meeting(s) created.
+     * @throws ServiceResponseException When the exchange service bails.
+     * @throws Exception //TODO: For unknown reasons.
      */
-    public ExchangeService getService() throws URISyntaxException {
-        ExchangeService service = new ExchangeService(ExchangeVersion.Exchange2010_SP2);
-        ExchangeCredentials credentials = new WebCredentials("adminish@meetl.ink", "Springe599");
-        service.setCredentials(credentials);
-        service.setUrl(new URI("https://outlook.office365.com/EWS/Exchange.asmx"));
+    public List<Meeting> makeAppointment(String start, String end, String subject, String body,
+                    List<String> recips) throws ServiceResponseException, Exception {
 
-        return service;
+        // ?start=2017-05-23|9:00:00&end=2017-05-23|9:00:00&
+        // subject=testSubject&body=testBody&recipients=CambMa1Story305@meetl.ink,jablack@meetl.ink
 
-    }
+        Appointment appointment = new Appointment((new ExchangeConnection()).getService());
+        appointment.setSubject(subject);
+        appointment.setBody(MessageBody.getMessageBodyFromText(body));
 
-    /**
-     * Creates a new calendar event.
-     * 
-     * @return A list of meetings including the created event.
-     * @throws ServiceResponseException When the service didn't like the event creation.
-     * @throws Exception When the service failed initial connection.
-     */
-    public List<Meeting> createEvent() throws ServiceResponseException, Exception {
-
-        Appointment appointment = new Appointment(getService());
-        appointment.setSubject("Test Subject");
-        appointment.setBody(MessageBody.getMessageBodyFromText("Test Body"));
-
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date startDate = formatter.parse("2017-05-23 1:00:00");
-        Date endDate = formatter.parse("2017-05-23 3:00:00");
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd*HH:mm:ss");
+        Date startDate = formatter.parse(start); // "2017-05-23|5:00:00");
+        Date endDate = formatter.parse(end); // "2017-05-23|6:00:00");
         appointment.setStart(startDate);
         appointment.setEnd(endDate);
 
-        try {
-            appointment.setRecurrence(null);
-        } catch (Exception e) {
-            throw new RuntimeException("Setting recurrence to null should never cause a problem.");
-        }
+        appointment.setRecurrence(null);
 
-        appointment.getRequiredAttendees().add("CambMa1Story305@meetl.ink");
-        appointment.getRequiredAttendees().add("jablack@meetl.ink");
+        for (String s : recips) {
+            appointment.getRequiredAttendees().add(s);
+        }
+        // appointment.getRequiredAttendees().add("CambMa1Story305@meetl.ink");
+        // appointment.getRequiredAttendees().add("jablack@meetl.ink");
 
         appointment.save();
 
@@ -87,6 +71,8 @@ public class RoomsDao {
         return list;
     }
 
+
+
     /**
      * Gets a list of room email addresses.
      * 
@@ -94,10 +80,10 @@ public class RoomsDao {
      * @throws Exception When the service fails to be created.
      */
     public List<EmailAddress> getRoomsList() throws Exception {
+
         List<EmailAddress> names = new ArrayList<EmailAddress>();
 
         try (ExchangeService service = new ExchangeService(ExchangeVersion.Exchange2010_SP2)) {
-
             ExchangeCredentials credentials = new WebCredentials("jablack@meetl.ink", "Comeet599");
             service.setCredentials(credentials);
             service.setUrl(new URI("https://outlook.office365.com/EWS/Exchange.asmx"));
@@ -116,12 +102,13 @@ public class RoomsDao {
 
             }
         }
-
         return names;
     }
 
+
+
     /**
-     * Gets all rooms at the orgaization.
+     * Gets all rooms at the organization.
      * 
      * @return A list of rooms.
      */
@@ -144,6 +131,7 @@ public class RoomsDao {
 
                 roomList = new ArrayList<Room>();
 
+
                 for (EmailAddress s : rooms) {
                     Room room = new Room();
                     room.setName(s.getName());
@@ -159,10 +147,7 @@ public class RoomsDao {
             } else {
                 FileInputStream fis = new FileInputStream(file);
                 ObjectInputStream ois = new ObjectInputStream(fis);
-                Object obj = ois.readObject();
-                if (obj instanceof List<?>) {
-                    roomList = (List<Room>) obj;
-                }
+                roomList = (List<Room>) ois.readObject();
                 ois.close();
             }
         } catch (IOException e) {

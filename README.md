@@ -1,6 +1,23 @@
 # RESTApiExample
 
 
+# Active URLs
+
+1. Get all the rooms within an organization
+	- /organization/rooms
+
+2. Reserve a room
+	- /organization/rooms/reserve
+	- Example: /organization/rooms/reserve?start=2017-03-28\*9:00:00&end=2017-03-28\*10:00:00&subject=testSubject&body=testBody&recipients=CambMa1Story305@meetl.ink,jablack@meetl.ink
+
+3. Get all the Meetings of a user
+	- /organization/user/meetings
+	- Example: /organization/user/meetings?start=2017-03-25\*12:00:00&end=2017-06-25\*12:00:00
+ 
+
+
+# Deployment Instructions
+
 1. $ ssh ec2-user@ec2-52-35-139-201.us-west-2.compute.amazonaws.com -i /PATH/mykeypair.pem
 	- Replace PATH. A copy of mykeypair.pem is in the RESTApiExample's directory.
 
