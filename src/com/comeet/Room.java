@@ -49,7 +49,7 @@ public class Room implements Serializable {
 
    @XmlElement 
    public void setAddress(String email) { 
-	   this.address = address;
+		this.address = email;
    } 
 
    public String getCountry() { 

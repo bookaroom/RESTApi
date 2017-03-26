@@ -1,13 +1,13 @@
 package com.comeet;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.joda.time.*;
-@XmlRootElement(name = "meeting") 
+
+@XmlRootElement(name = "meeting")
 
 public class Meeting {
 	private DateTime startTime;
@@ -16,77 +16,60 @@ public class Meeting {
 	private Room room;
 	private String title;
 	private String message;
-	
-	//constructor
-	Meeting()
-	{
-		attendees = new ArrayList();
+
+	// constructor
+	Meeting() {
+		attendees = new ArrayList<>();
 		room = new Room();
 	}
-	
-	//setters
-	public void setStartTime(DateTime meetingTime)
-	{
+
+	// setters
+	public void setStartTime(DateTime meetingTime) {
 		this.startTime = meetingTime;
 	}
-	
-	public void setDuration(int duration)
-	{
+
+	public void setDuration(int duration) {
 		this.duration = duration;
 	}
-	
-	public void setLocation(Room room)
-	{
+
+	public void setLocation(Room room) {
 		this.room = room;
 	}
-	
-	public void setTitle(String title)
-	{
+
+	public void setTitle(String title) {
 		this.title = title;
 	}
-	
-	public void getMessage(String message)
-	{
+
+	public void getMessage(String message) {
 		this.message = message;
 	}
-	
-	public void setAttendee(String attendee)
-	{
+
+	public void setAttendee(String attendee) {
 		attendees.add(attendee);
 	}
-	
-	//getters
-	public DateTime getStartTime()
-	{
+
+	// getters
+	public DateTime getStartTime() {
 		return startTime;
 	}
-	
-	public int getDuration()
-	{
+
+	public int getDuration() {
 		return duration;
 	}
-	
-	private Room getLocation()
-	{
+
+	Room getLocation() {
 		return room;
 	}
-	
-	private String getTitle()
-	{
+
+	String getTitle() {
 		return title;
 	}
-	
-	private String getMessage()
-	{
+
+	String getMessage() {
 		return message;
 	}
-	
-	private List<String> getAttendees()
-	{
+
+	List<String> getAttendees() {
 		return attendees;
 	}
-	
-	
-	
-
 }
