@@ -3,14 +3,14 @@
 
 # Active URLs
 
-Get all the rooms within an organization
+1. Get all the rooms within an organization
 	- /organization/rooms
 
-Reserve a room
+2. Reserve a room
 	- /organization/rooms/reserve
 	- Example: /organization/rooms/reserve?start=2017-03-28*9:00:00&end=2017-03-28*10:00:00&subject=testSubject&body=testBody&recipients=CambMa1Story305@meetl.ink,jablack@meetl.ink
 
-Get all the Meetings of a user
+3. Get all the Meetings of a user
 	- /organization/user/meetings
 	- Example: /organization/user/meetings?start=2017-03-25*12:00:00&end=2017-06-25*12:00:00
  
