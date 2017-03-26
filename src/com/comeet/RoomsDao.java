@@ -52,24 +52,6 @@ import java.text.SimpleDateFormat;
 
 public class RoomsDao { 
 	
-	/*
-	static class RedirectionUrlCallback implements IAutodiscoverRedirectionUrl {
-	    public boolean autodiscoverRedirectionUrlValidationCallback(
-	            String redirectionUrl) {
-	        return redirectionUrl.toLowerCase().startsWith("https://");
-	    }
-	}*/
-	
-	public ExchangeService getService() throws URISyntaxException{
-		ExchangeService service = new ExchangeService(ExchangeVersion.Exchange2010_SP2);
-		ExchangeCredentials credentials = new WebCredentials("adminish@meetl.ink", "Springe599");
-		service.setCredentials(credentials);
-		service.setUrl(new URI("https://outlook.office365.com/EWS/Exchange.asmx"));
-		
-		return service;
-		
-	}
-	
 
 	
 	public List<Meeting> makeAppointment(String start, String end, String subject, String body, List<String> recips) throws ServiceResponseException, Exception{
@@ -77,11 +59,11 @@ public class RoomsDao {
 		
 		//?start=2017-05-23|9:00:00&end=2017-05-23|9:00:00&subject=testSubject&body=testBody&recipients=CambMa1Story305@meetl.ink,jablack@meetl.ink
 		
-		Appointment appointment = new Appointment(getService());
+		Appointment appointment = new Appointment((new ExchangeConnection()).getService());
 		appointment.setSubject(subject);
 		appointment.setBody(MessageBody.getMessageBodyFromText(body));
 
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd|HH:mm:ss");
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd*HH:mm:ss");
 		Date startDate = formatter.parse(start); //"2017-05-23|5:00:00");
 		Date endDate = formatter.parse(end); //"2017-05-23|6:00:00");
 		appointment.setStart(startDate);
