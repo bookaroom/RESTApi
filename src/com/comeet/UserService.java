@@ -1,5 +1,6 @@
 package com.comeet;
 
+import com.comeet.Room;
 import java.util.List;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -10,27 +11,35 @@ import microsoft.exchange.webservices.data.core.exception.service.remote.Service
 
 public class UserService {
 
-	@GET
-	@Path("/rooms")
-	@Produces("application/json")
-	// @Produces(MediaType.APPLICATION_XML)
-	public List<Room> getRooms() {
-		RoomsDao roomsDao = new RoomsDao(); // each call should define new
-											// instance of DAO object
-		return roomsDao.getAllRooms();
+    /**
+     * Gets rooms from the DAO.
+     * 
+     * @return Rooms.
+     */
+    @GET
+    @Path("/rooms")
+    @Produces("application/json")
+    // @Produces(MediaType.APPLICATION_XML)
+    public List<Room> getRooms() {
+        RoomsDao roomsDao = new RoomsDao(); // each call should define new instance of DAO object
+        return roomsDao.getAllRooms();
 
-	}
+    }
 
-	@GET
-	@Path("/rooms/find")
-	@Produces("application/json")
-	// @Produces(MediaType.APPLICATION_XML)
-	public List<Meeting> getRoomsTwo() throws ServiceResponseException, Exception {
-		RoomsDao roomsDao = new RoomsDao(); // each call should define new
-											// instance of DAO object
-		return roomsDao.makeAppointment();
-
-	}
+    /**
+     * Gets rooms too? //TODO: @ryan What is this?
+     * 
+     * @return Rooms
+     * @throws ServiceResponseException When the service bails.
+     */
+    @GET
+    @Path("/rooms/find")
+    @Produces("application/json")
+    // @Produces(MediaType.APPLICATION_XML)
+    public List<Meeting> getRoomsTwo() throws ServiceResponseException, Exception {
+        RoomsDao roomsDao = new RoomsDao(); // each call should define new instance of DAO object
+        return roomsDao.createEvent();
+    }
 
 }
 
@@ -39,9 +48,9 @@ public class UserService {
  * 
  * @Path("/meetings/userid") //userid is an email
  * 
- * @Produces("application/json") // @Produces(MediaType.APPLICATION_XML) public
- * List<Room> getUserMeetings() { MeetingsDao meetingsDao = new MeetingsDao();
- * return meetingsDao.getUserMeetings(String email);
+ * @Produces("application/json") // @Produces(MediaType.APPLICATION_XML) public List<Room>
+ * getUserMeetings() { MeetingsDao meetingsDao = new MeetingsDao(); return
+ * meetingsDao.getUserMeetings(String email);
  * 
  * }
  */

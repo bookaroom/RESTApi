@@ -5,71 +5,68 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.joda.time.*;
+import org.joda.time.DateTime;
+
 
 @XmlRootElement(name = "meeting")
 
 public class Meeting {
-	private DateTime startTime;
-	private int duration;
-	private List<String> attendees;
-	private Room room;
-	private String title;
-	private String message;
+    private DateTime startTime;
+    private int duration;
+    private List<String> attendees;
+    private Room room;
+    private String title;
+    private String message;
 
-	// constructor
-	Meeting() {
-		attendees = new ArrayList<>();
-		room = new Room();
-	}
+    // constructor
+    Meeting() {
+        attendees = new ArrayList<>();
+        room = new Room();
+    }
 
-	// setters
-	public void setStartTime(DateTime meetingTime) {
-		this.startTime = meetingTime;
-	}
+    // setters
+    public void setStartTime(DateTime meetingTime) {
+        this.startTime = meetingTime;
+    }
 
-	public void setDuration(int duration) {
-		this.duration = duration;
-	}
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
 
-	public void setLocation(Room room) {
-		this.room = room;
-	}
+    public void setLocation(Room room) {
+        this.room = room;
+    }
 
-	public void setTitle(String title) {
-		this.title = title;
-	}
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-	public void getMessage(String message) {
-		this.message = message;
-	}
+    public void setMessage(String message) {
+        this.message = message;
+    }
 
-	public void setAttendee(String attendee) {
-		attendees.add(attendee);
-	}
+    public String getMessage() {
+        return this.message;
+    }
 
-	// getters
-	public DateTime getStartTime() {
-		return startTime;
-	}
+    public void setAttendee(String attendee) {
+        attendees.add(attendee);
+    }
 
-	public int getDuration() {
-		return duration;
-	}
+    // getters
+    public DateTime getStartTime() {
+        return startTime;
+    }
 
-	Room getLocation() {
-		return room;
-	}
+    public int getDuration() {
+        return duration;
+    }
 
-	String getTitle() {
-		return title;
-	}
+    Room getLocation() {
+        return room;
+    }
 
-	String getMessage() {
-		return message;
-	}
-
-	List<String> getAttendees() {
-		return attendees;
-	}
+    String getTitle() {
+        return title;
+    }
 }
