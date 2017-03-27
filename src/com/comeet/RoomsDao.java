@@ -2,6 +2,8 @@
 package com.comeet;
 
 import com.comeet.data.DataRepository;
+import com.comeet.exchange.ExchangeServiceFactory;
+import com.comeet.exchange.ExchangeServiceFactoryImpl;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,7 +12,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,17 +19,26 @@ import java.util.Date;
 import java.util.List;
 
 import microsoft.exchange.webservices.data.core.ExchangeService;
-import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion;
 import microsoft.exchange.webservices.data.core.exception.service.remote.ServiceResponseException;
 import microsoft.exchange.webservices.data.core.service.item.Appointment;
-import microsoft.exchange.webservices.data.credential.ExchangeCredentials;
-import microsoft.exchange.webservices.data.credential.WebCredentials;
 import microsoft.exchange.webservices.data.property.complex.EmailAddress;
 import microsoft.exchange.webservices.data.property.complex.EmailAddressCollection;
 import microsoft.exchange.webservices.data.property.complex.MessageBody;
 
+// BUGBUG: [BOOKAROOM-45] https://bookaroom.atlassian.net/browse/BOOKAROOM-45
+//CHECKSTYLE DISABLE: JavadocMethod
 public class RoomsDao {
+    
+    protected ExchangeServiceFactory serviceFactory;
 
+    public RoomsDao() {
+        this(new ExchangeServiceFactoryImpl());
+    }
+    
+    public RoomsDao(ExchangeServiceFactory serviceFactory) {
+        this.serviceFactory = serviceFactory;
+    }
+    
     /**
      * Creates an appointment.
      * @param start Appointment start time.
@@ -83,11 +93,7 @@ public class RoomsDao {
 
         List<EmailAddress> names = new ArrayList<EmailAddress>();
 
-        try (ExchangeService service = new ExchangeService(ExchangeVersion.Exchange2010_SP2)) {
-            ExchangeCredentials credentials = new WebCredentials("jablack@meetl.ink", "Comeet599");
-            service.setCredentials(credentials);
-            service.setUrl(new URI("https://outlook.office365.com/EWS/Exchange.asmx"));
-
+        try (ExchangeService service = serviceFactory.create()) {
             EmailAddressCollection c = service.getRoomLists();
             for (EmailAddress e : c) {
 
@@ -104,8 +110,6 @@ public class RoomsDao {
         }
         return names;
     }
-
-
 
     /**
      * Gets all rooms at the organization.
