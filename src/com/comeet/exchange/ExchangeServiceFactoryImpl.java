@@ -1,0 +1,57 @@
+package com.comeet.exchange;
+
+import com.comeet.utilities.ApiLogger;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.logging.Level;
+
+import microsoft.exchange.webservices.data.core.ExchangeService;
+import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion;
+import microsoft.exchange.webservices.data.credential.ExchangeCredentials;
+
+public class ExchangeServiceFactoryImpl implements ExchangeServiceFactory {
+
+    /**
+     * O365 Exchange Web Services endpoint string documented at https://msdn.microsoft.com/en-us/library/office/dn789003(v=exchg.150).aspx
+     * Note: Implement autodiscover for Exchange 2013 compatibility https://msdn.microsoft.com/en-us/library/office/jj900169(v=exchg.150).aspx
+     */
+    protected static final String EWS_ENDPOINT_STRING = "https://outlook.office365.com/EWS/Exchange.asmx";
+    
+    /**
+     * Creates a new ExchangeService connection.
+     * @return new ExchangeService.
+     * @throws ExchangeClientException
+     *      When connection initialization fails.
+     */
+    @Override
+    public ExchangeService create() throws ExchangeClientException {
+        ExchangeService service = new ExchangeService(ExchangeVersion.Exchange2010_SP2);
+        
+        ExchangeCredentials credentials = getCredentials();
+        service.setCredentials(credentials);
+        
+        URI exchangeEndpoint = getExchangeWebServiceEndpoint();
+        service.setUrl(exchangeEndpoint);
+        
+        return service;
+    }
+
+    private ExchangeCredentials getCredentials() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    private URI getExchangeWebServiceEndpoint() throws ExchangeClientException {
+        try {
+            return new URI(EWS_ENDPOINT_STRING);
+        } catch (URISyntaxException e) {
+            // EWS_ENDPOINT_STRING is a well-formed static final.  Guaranteed not to throw if there's not a code error.
+            assert e == null;
+            ApiLogger.logger.log(Level.SEVERE, "Error determining exchange web service endpoint", e);
+            throw new ExchangeClientException(e);
+        }
+    }
+
+    
+}

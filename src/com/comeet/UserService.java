@@ -10,11 +10,12 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 
 import microsoft.exchange.webservices.data.core.exception.service.remote.ServiceResponseException;
 
 @Path("")
-
 public class UserService {
 
     /**
@@ -24,7 +25,9 @@ public class UserService {
     @GET
     @Path("/rooms")
     @Produces("application/json")
-    public List<Room> getRooms() {
+    public List<Room> getRooms(@Context HttpHeaders headers) {
+    
+        // TODO: Parse Bearer token from headers and pipe to DAO.
         // each call should define new instance of DAO object
         RoomsDao roomsDao = new RoomsDao(); 
         return roomsDao.getAllRooms();
@@ -46,9 +49,12 @@ public class UserService {
     @GET
     @Path("/user/meetings")
     @Produces("application/json")
-    public List<Meeting> getUserMeetings(@DefaultValue("") @QueryParam("start") String start,
+    public List<Meeting> getUserMeetings(@Context HttpHeaders headers,
+                    @DefaultValue("") @QueryParam("start") String start,
                     @DefaultValue("") @QueryParam("end") String end)
                     throws ServiceResponseException, Exception {
+        
+        // TODO: Parse Bearer token from headers and pipe to DAO.
         UsersDao ud = new UsersDao();
 
         return ud.getUserMeetings(start, end);
@@ -77,7 +83,8 @@ public class UserService {
     @POST
     @Path("/rooms/reserve")
     @Produces("application/json")
-    public List<Meeting> getRoomsTwo(@DefaultValue("") @FormParam("start") String start,
+    public List<Meeting> getRoomsTwo(@Context HttpHeaders headers,
+                    @DefaultValue("") @FormParam("start") String start,
                     @DefaultValue("") @FormParam("end") String end,
                     @DefaultValue("") @FormParam("subject") String subject,
                     @DefaultValue("") @FormParam("body") String body,
@@ -86,6 +93,7 @@ public class UserService {
 
         List<String> recips = Arrays.asList(recipients.split("\\s*,\\s*"));
 
+        // TODO: Parse Bearer token from headers and pipe to DAO.
         // Each call should define new instance of DAO
         RoomsDao roomsDao = new RoomsDao(); 
         return roomsDao.makeAppointment(start, end, subject, body, recips);
