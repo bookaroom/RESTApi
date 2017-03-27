@@ -3,6 +3,7 @@ package com.comeet;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -10,6 +11,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 
 import microsoft.exchange.webservices.data.core.exception.service.remote.ServiceResponseException;
 
@@ -76,7 +78,7 @@ public class UserService {
      */ 
     @POST
     @Path("/rooms/reserve")
-    @Produces("application/json")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public List<Meeting> getRoomsTwo(@DefaultValue("") @FormParam("start") String start,
                     @DefaultValue("") @FormParam("end") String end,
                     @DefaultValue("") @FormParam("subject") String subject,
