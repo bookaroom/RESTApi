@@ -1,5 +1,6 @@
 package com.comeet;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -11,29 +12,43 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "meeting") 
 
 public class Meeting {
-    private Date startTime;
-    private int duration;
-    private List<String> attendees;
+
+    
+    private String subject = "";
+    private String body;
+    private Date start;
+    private Date end;
     private String location;
-    private String title;
-    private String message;
+    
+    private Room room;
+    
+    private Person meetingcreator;
+    private List<Person> requiredattendees;
+    private List<Person> optionalattendees;
+    
 
     // constructor
     
     Meeting() {
-        attendees = new ArrayList<>();
+
     }
 
     // setters
     
+    @XmlElement 
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
+    
     @XmlElement
-    public void setStartTime(Date meetingTime) {
-        this.startTime = meetingTime;
+    public void setStart(Date start) {
+        this.start = start;
     }
 
     @XmlElement 
-    public void setDuration(int duration) {
-        this.duration = duration;
+    public void setEnd(Date end) {
+        this.end = end;
     }
     
     @XmlElement 
@@ -41,48 +56,72 @@ public class Meeting {
         this.location = location;
     }
 
-    @XmlElement 
-    public void setTitle(String title) {
-        this.title = title;
+    
+    
+    @XmlElement
+    public void setBody(String body) {
+        this.body = body;
     }
 
-    public void setAttendee(String attendee) {
-        attendees.add(attendee);
-    }
-    
-    @XmlElement 
-    public void setAttendees(List<String> attendees) {
-        this.attendees = attendees;
+    @XmlElement
+    public void setMeetingcreator(Person person) {
+        this.meetingcreator = person;
     }
     
     @XmlElement
-    public void setMessage(String message) {
-        this.message = message;
+    public void setRequiredattendees(List<Person> people) {
+        this.requiredattendees = people;
     }
 
-    // getters
+    @XmlElement
+    public void setOptionaldattendees(List<Person> people) {
+        this.optionalattendees = people;
+    }
+
+    @XmlElement
+    public void setRoom(Room room) {
+        this.room = room;
+    }
     
-    public Date getStartTime() {
-        return startTime;
+    
+    // getters
+    public Room getRoom(){
+        return room;
+    }
+    
+    
+    public String getStart() {
+        return (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(start) ;
     }
 
-    public int getDuration() {
-        return duration;
+    public String getEnd() {
+        return (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(end) ;
     }
 
-    String getLocation() {
+    public String getLocation() {
         return location;
     }
 
-    String getTitle() {
-        return title;
+    public String getSubject() {
+        return subject;
     }
 
-    public String getMessage() {
-        return message;
+    public String getBody() {
+        return body;
     }
     
-    public List<String> getAttendees() {
-        return attendees;
+    
+    public Person getMeetingcreator() {
+        return meetingcreator;
     }
+    
+    public List<Person> getRequiredattendees() {
+        return requiredattendees;
+    }
+
+    public List<Person> getOptionaldattendees() {
+        return optionalattendees;
+    }
+    
+    
 }

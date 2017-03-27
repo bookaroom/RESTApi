@@ -173,7 +173,7 @@ public class RoomsDao {
         }
     }
 
-    private void retrieveMetadata(Room room) {
+    public static void retrieveMetadata(Room room) {
         DataRepository db = new DataRepository();
 
         Room metadata = db.retrieveRoomMetadata(room.getEmail());
