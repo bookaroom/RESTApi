@@ -1,6 +1,5 @@
 # RESTApiExample
 
-
 # Active URLs
 
 1. Get all the rooms within an organization
