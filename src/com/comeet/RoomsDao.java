@@ -2,8 +2,6 @@
 package com.comeet;
 
 import com.comeet.data.DataRepository;
-import com.comeet.exchange.ExchangeServiceFactory;
-import com.comeet.exchange.ExchangeServiceFactoryImpl;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,21 +24,26 @@ import microsoft.exchange.webservices.data.property.complex.EmailAddressCollecti
 import microsoft.exchange.webservices.data.property.complex.MessageBody;
 
 // BUGBUG: [BOOKAROOM-45] https://bookaroom.atlassian.net/browse/BOOKAROOM-45
-//CHECKSTYLE DISABLE: JavadocMethod
+// CHECKSTYLE DISABLE: JavadocMethod
 public class RoomsDao {
-    
-    protected ExchangeServiceFactory serviceFactory;
 
-    public RoomsDao() {
-        this(new ExchangeServiceFactoryImpl());
+    /**
+     * The Exchange service is injected via the constructor.
+     */
+    protected ExchangeService service;
+
+    /**
+     * Constructs a rooms Data Access Object.
+     * 
+     * @param service The exchange service to access for Room data.
+     */
+    public RoomsDao(ExchangeService service) {
+        this.service = service;
     }
-    
-    public RoomsDao(ExchangeServiceFactory serviceFactory) {
-        this.serviceFactory = serviceFactory;
-    }
-    
+
     /**
      * Creates an appointment.
+     * 
      * @param start Appointment start time.
      * @param end Appointment end time.
      * @param subject The subject line.
@@ -56,7 +59,7 @@ public class RoomsDao {
         // ?start=2017-05-23|9:00:00&end=2017-05-23|9:00:00&
         // subject=testSubject&body=testBody&recipients=CambMa1Story305@meetl.ink,jablack@meetl.ink
 
-        Appointment appointment = new Appointment((new ExchangeConnection()).getService());
+        Appointment appointment = new Appointment(service);
         appointment.setSubject(subject);
         appointment.setBody(MessageBody.getMessageBodyFromText(body));
 
@@ -93,40 +96,35 @@ public class RoomsDao {
 
         List<EmailAddress> names = new ArrayList<EmailAddress>();
 
-        try (ExchangeService service = serviceFactory.create()) {
-            EmailAddressCollection c = service.getRoomLists();
-            for (EmailAddress e : c) {
+        EmailAddressCollection c = service.getRoomLists();
+        for (EmailAddress e : c) {
 
-                Collection<EmailAddress> rooms = service.getRooms(e);
+            Collection<EmailAddress> rooms = service.getRooms(e);
 
-                for (EmailAddress r : rooms) {
-                    System.out.println(r.toString());
-                    System.out.println(r.getAddress());
-                    System.out.println(r.getName());
-                    names.add(r);
-                }
-
+            for (EmailAddress r : rooms) {
+                System.out.println(r.toString());
+                System.out.println(r.getAddress());
+                System.out.println(r.getName());
+                names.add(r);
             }
+
         }
+
         return names;
     }
 
     /**
      * Gets all rooms at the organization.
      * 
-     * @return A list of rooms.
+     * @return A list of rooms or null on error.
      */
     public List<Room> getAllRooms() {
         List<EmailAddress> rooms = null;
+        List<Room> roomList = null;
+
         try {
             rooms = getRoomsList();
-        } catch (Exception e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
 
-        List<Room> roomList = null;
-        try {
             File file = new File("Roo.dat");
 
             file.delete();
@@ -155,8 +153,13 @@ public class RoomsDao {
                 ois.close();
             }
         } catch (IOException e) {
+            // TODO: Auto-generated catch block.
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
+            // TODO: Auto-generated catch block.
+            e.printStackTrace();
+        } catch (Exception e) {
+            // TODO: Auto-generated catch block.
             e.printStackTrace();
         }
         return roomList;
