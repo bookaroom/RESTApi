@@ -13,14 +13,14 @@
 	`subject=testSubject`\
 	`body=testBody`\
 	`recipients=CambMa1Story305@meetl.ink,jablack@meetl.ink`
-	- Example: `curl -X POST -H "Content-Type: application/x-www-form-urlencoded" http://ec2-34-208-175-1.us-west-2.compute.amazonaws.com:8080/organization/rooms/reserve -d "start=2017-04-16T09:00:00-0400&end=2017-04-16T10:05:00-0400&subject=testSubject&body=testBody&recipients=CambMa1Story305@meetl.ink,jablack@meetl.ink"`\
+	- Example: `curl -X POST -H "Content-Type: application/x-www-form-urlencoded" http://ec2-34-208-175-1.us-west-2.compute.amazonaws.com:8080/organization/rooms/reserve -d "start=2017-04-16T09:00:00-0400&end=2017-04-16T10:05:00-0400&subject=testSubject&body=testBody&recipients=CambMa1Story305@meetl.ink,jablack@meetl.ink"`
 
 3. Get all the Meetings of a user
 	- GET `/organization/user/meetings`
-	- Parameters: /organization/user/meetings
+	- Parameters: /organization/user/meetings\
 	`start=2017-04-15T07:00:00-0400`\
 	`end=2017-04-15T20:00:00-0400`\
-	- Example: `/organization/user/meetings?start=2017-03-25T22:00:00-0400&end=2017-03-30T12:00:00-0400`\
+	- Example: `/organization/user/meetings?start=2017-03-25T22:00:00-0400&end=2017-03-30T12:00:00-0400`
  
 
 
