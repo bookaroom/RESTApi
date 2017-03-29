@@ -19,7 +19,7 @@
 	- GET `/organization/user/meetings`
 	- Parameters: /organization/user/meetings\
 	`start=2017-04-15T07:00:00-0400`\
-	`end=2017-04-15T20:00:00-0400`\
+	`end=2017-04-15T20:00:00-0400`
 	- Example: `/organization/user/meetings?start=2017-03-25T22:00:00-0400&end=2017-03-30T12:00:00-0400`
  
 
