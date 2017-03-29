@@ -8,6 +8,7 @@ import com.comeet.exchange.ExchangeServiceFactoryImpl;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -17,6 +18,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType; 
 
 import microsoft.exchange.webservices.data.core.ExchangeService;
 import microsoft.exchange.webservices.data.core.exception.service.remote.ServiceResponseException;
@@ -68,7 +70,7 @@ public class UserService {
      */
     @GET
     @Path("/user/meetings")
-    @Produces("application/json")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED) 
     public List<Meeting> getUserMeetings(@Context HttpHeaders headers,
                     @DefaultValue("") @QueryParam("start") String start,
                     @DefaultValue("") @QueryParam("end") String end)
