@@ -19,7 +19,7 @@ public class ExchangeConnection {
      */
     public ExchangeService getService() throws URISyntaxException {
         ExchangeService service = new ExchangeService(ExchangeVersion.Exchange2010_SP2);
-        ExchangeCredentials credentials = new WebCredentials("adminish@meetl.ink", "Springe599");
+        ExchangeCredentials credentials = new WebCredentials("jablack@meetl.ink", "CapstoneE599");
         service.setCredentials(credentials);
         service.setUrl(new URI("https://outlook.office365.com/EWS/Exchange.asmx"));
 

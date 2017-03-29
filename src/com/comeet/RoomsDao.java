@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import microsoft.exchange.webservices.data.core.ExchangeService;
 import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion;
@@ -31,6 +32,7 @@ public class RoomsDao {
 
     /**
      * Creates an appointment.
+     * 
      * @param start Appointment start time.
      * @param end Appointment end time.
      * @param subject The subject line.
@@ -43,14 +45,13 @@ public class RoomsDao {
     public List<Meeting> makeAppointment(String start, String end, String subject, String body,
                     List<String> recips) throws ServiceResponseException, Exception {
 
-        // ?start=2017-05-23|9:00:00&end=2017-05-23|9:00:00&
-        // subject=testSubject&body=testBody&recipients=CambMa1Story305@meetl.ink,jablack@meetl.ink
-
         Appointment appointment = new Appointment((new ExchangeConnection()).getService());
         appointment.setSubject(subject);
         appointment.setBody(MessageBody.getMessageBodyFromText(body));
 
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd*HH:mm:ss");
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+        formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+
         Date startDate = formatter.parse(start); // "2017-05-23|5:00:00");
         Date endDate = formatter.parse(end); // "2017-05-23|6:00:00");
         appointment.setStart(startDate);
@@ -61,8 +62,6 @@ public class RoomsDao {
         for (String s : recips) {
             appointment.getRequiredAttendees().add(s);
         }
-        // appointment.getRequiredAttendees().add("CambMa1Story305@meetl.ink");
-        // appointment.getRequiredAttendees().add("jablack@meetl.ink");
 
         appointment.save();
 
@@ -83,25 +82,21 @@ public class RoomsDao {
 
         List<EmailAddress> names = new ArrayList<EmailAddress>();
 
-        try (ExchangeService service = new ExchangeService(ExchangeVersion.Exchange2010_SP2)) {
-            ExchangeCredentials credentials = new WebCredentials("jablack@meetl.ink", "Comeet599");
-            service.setCredentials(credentials);
-            service.setUrl(new URI("https://outlook.office365.com/EWS/Exchange.asmx"));
+        ExchangeService service = (new ExchangeConnection()).getService();
+        EmailAddressCollection c = service.getRoomLists();
+        for (EmailAddress e : c) {
 
-            EmailAddressCollection c = service.getRoomLists();
-            for (EmailAddress e : c) {
+            Collection<EmailAddress> rooms = service.getRooms(e);
 
-                Collection<EmailAddress> rooms = service.getRooms(e);
-
-                for (EmailAddress r : rooms) {
-                    System.out.println(r.toString());
-                    System.out.println(r.getAddress());
-                    System.out.println(r.getName());
-                    names.add(r);
-                }
-
+            for (EmailAddress r : rooms) {
+                System.out.println(r.toString());
+                System.out.println(r.getAddress());
+                System.out.println(r.getName());
+                names.add(r);
             }
+
         }
+
         return names;
     }
 
