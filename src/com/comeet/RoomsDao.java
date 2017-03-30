@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import microsoft.exchange.webservices.data.core.ExchangeService;
 import microsoft.exchange.webservices.data.core.exception.service.remote.ServiceRequestException;
@@ -25,8 +26,6 @@ import microsoft.exchange.webservices.data.property.complex.EmailAddress;
 import microsoft.exchange.webservices.data.property.complex.EmailAddressCollection;
 import microsoft.exchange.webservices.data.property.complex.MessageBody;
 
-// BUGBUG: [BOOKAROOM-45] https://bookaroom.atlassian.net/browse/BOOKAROOM-45
-// CHECKSTYLE DISABLE: JavadocMethod
 public class RoomsDao {
 
     /**
@@ -58,14 +57,13 @@ public class RoomsDao {
     public List<Meeting> makeAppointment(String start, String end, String subject, String body,
                     List<String> recips) throws ServiceResponseException, Exception {
 
-        // ?start=2017-05-23|9:00:00&end=2017-05-23|9:00:00&
-        // subject=testSubject&body=testBody&recipients=CambMa1Story305@meetl.ink,jablack@meetl.ink
-
         Appointment appointment = new Appointment(service);
         appointment.setSubject(subject);
         appointment.setBody(MessageBody.getMessageBodyFromText(body));
 
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd*HH:mm:ss");
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+        formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+
         Date startDate = formatter.parse(start); // "2017-05-23|5:00:00");
         Date endDate = formatter.parse(end); // "2017-05-23|6:00:00");
         appointment.setStart(startDate);
@@ -76,8 +74,6 @@ public class RoomsDao {
         for (String s : recips) {
             appointment.getRequiredAttendees().add(s);
         }
-        // appointment.getRequiredAttendees().add("CambMa1Story305@meetl.ink");
-        // appointment.getRequiredAttendees().add("jablack@meetl.ink");
 
         appointment.save();
 
@@ -94,13 +90,12 @@ public class RoomsDao {
      * @return List of room email addresses.
      * @throws Exception When the service fails to be created.
      */
-    public List<EmailAddress> getRoomsList()
-                    throws ServiceRequestException, ServiceResponseException, ExchangeServiceException {
+    public List<EmailAddress> getRoomsList() throws ServiceRequestException,
+                    ServiceResponseException, ExchangeServiceException {
 
         List<EmailAddress> names = new ArrayList<EmailAddress>();
 
         try {
-
             EmailAddressCollection c = service.getRoomLists();
             for (EmailAddress e : c) {
 
@@ -120,7 +115,7 @@ public class RoomsDao {
         } catch (Exception e) {
             throw new ExchangeServiceException(e);
         }
-        
+
         return names;
     }
 
@@ -128,14 +123,13 @@ public class RoomsDao {
      * Gets all rooms at the organization.
      * 
      * @return A list of rooms or null on error.
-     * @throws ServiceRequestException 
-     *          When the exchange service's request was invalid or malformed.
-     * @throws ServiceResponseException
-     *          When the exchange server's response was invalid or malformed.
-     * @throws ExchangeServiceException
-     *           When something else went wrong with the service.
+     * @throws ServiceRequestException When the exchange service's request was invalid or malformed.
+     * @throws ServiceResponseException When the exchange server's response was invalid or
+     *         malformed.
+     * @throws ExchangeServiceException When something else went wrong with the service.
      */
-    public List<Room> getAllRooms() throws ServiceResponseException, ServiceRequestException, ExchangeServiceException {
+    public List<Room> getAllRooms() throws ServiceResponseException, ServiceRequestException,
+                    ExchangeServiceException {
         List<EmailAddress> rooms = null;
         List<Room> roomList = null;
 
@@ -143,13 +137,10 @@ public class RoomsDao {
             rooms = getRoomsList();
 
             File file = new File("Roo.dat");
-
             file.delete();
 
             if (!file.exists()) {
-
                 roomList = new ArrayList<Room>();
-
 
                 for (EmailAddress s : rooms) {
                     Room room = new Room();
@@ -176,7 +167,7 @@ public class RoomsDao {
             // TODO: Auto-generated catch block.
             e.printStackTrace();
         }
-        
+
         return roomList;
     }
 
@@ -195,6 +186,10 @@ public class RoomsDao {
         }
     }
 
+    /**
+     * Fetches a room metadata.
+     * @param room The room of interest, to be filled in.
+     */
     public static void retrieveMetadata(Room room) {
         DataRepository db = new DataRepository();
 

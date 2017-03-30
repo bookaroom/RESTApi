@@ -72,8 +72,7 @@ public class UsersDao {
 
     }
 
-    public List<Person> attendees(Meeting m, Appointment appt,
-                    AttendeeCollection ac) throws Exception {
+    public List<Person> attendees(Meeting m, Appointment appt, AttendeeCollection ac) throws Exception {
         List<Attendee> list = ac.getItems();
 
         // System.out.println("size: " + ac.getCount() + "\n");
@@ -97,6 +96,7 @@ public class UsersDao {
         AttendeeCollection ac = appt.getRequiredAttendees();
 
         m.setRequiredattendees(attendees(m, appt, ac));
+        
     }
 
     public void optionalAttendees(Meeting m, Appointment appt)
@@ -115,10 +115,13 @@ public class UsersDao {
             for (EmailAddress add : col) {
                 roomMap.put(add.getName(), add.getAddress());
             }
+            
         }
+        
         return roomMap;
     }
 
+    
     public Room populateRoomData(Map<String, String> roomMap, Appointment appt)
                     throws ServiceLocalException {
 
@@ -158,15 +161,16 @@ public class UsersDao {
     }
 
 
-    public List<Appointment> findAppointments(String start, String end)
-                    throws Exception {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd*HH:mm:ss");
+    public List<Appointment> findAppointments(String start, String end) throws Exception {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
         Date startDate = formatter.parse(start);// "2010-05-01 12:00:00");
         Date endDate = formatter.parse(end); // "2010-05-30 13:00:00");
+
+
         CalendarFolder cf = CalendarFolder.bind(service, WellKnownFolderName.Calendar);
         FindItemsResults<Appointment> findResults =
                         cf.findAppointments(new CalendarView(startDate, endDate));
-
+        
         return findResults.getItems();
     }
 
