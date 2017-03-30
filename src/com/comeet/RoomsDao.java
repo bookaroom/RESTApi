@@ -2,6 +2,7 @@
 package com.comeet;
 
 import com.comeet.data.DataRepository;
+import com.comeet.exchange.ExchangeServiceException;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,6 +18,7 @@ import java.util.Date;
 import java.util.List;
 
 import microsoft.exchange.webservices.data.core.ExchangeService;
+import microsoft.exchange.webservices.data.core.exception.service.remote.ServiceRequestException;
 import microsoft.exchange.webservices.data.core.exception.service.remote.ServiceResponseException;
 import microsoft.exchange.webservices.data.core.service.item.Appointment;
 import microsoft.exchange.webservices.data.property.complex.EmailAddress;
@@ -92,24 +94,33 @@ public class RoomsDao {
      * @return List of room email addresses.
      * @throws Exception When the service fails to be created.
      */
-    public List<EmailAddress> getRoomsList() throws Exception {
+    public List<EmailAddress> getRoomsList()
+                    throws ServiceRequestException, ServiceResponseException, ExchangeServiceException {
 
         List<EmailAddress> names = new ArrayList<EmailAddress>();
 
-        EmailAddressCollection c = service.getRoomLists();
-        for (EmailAddress e : c) {
+        try {
 
-            Collection<EmailAddress> rooms = service.getRooms(e);
+            EmailAddressCollection c = service.getRoomLists();
+            for (EmailAddress e : c) {
 
-            for (EmailAddress r : rooms) {
-                System.out.println(r.toString());
-                System.out.println(r.getAddress());
-                System.out.println(r.getName());
-                names.add(r);
+                Collection<EmailAddress> rooms = service.getRooms(e);
+
+                for (EmailAddress r : rooms) {
+                    System.out.println(r.toString());
+                    System.out.println(r.getAddress());
+                    System.out.println(r.getName());
+                    names.add(r);
+                }
             }
-
+        } catch (ServiceRequestException e) {
+            throw e;
+        } catch (ServiceResponseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ExchangeServiceException(e);
         }
-
+        
         return names;
     }
 
@@ -117,8 +128,14 @@ public class RoomsDao {
      * Gets all rooms at the organization.
      * 
      * @return A list of rooms or null on error.
+     * @throws ServiceRequestException 
+     *          When the exchange service's request was invalid or malformed.
+     * @throws ServiceResponseException
+     *          When the exchange server's response was invalid or malformed.
+     * @throws ExchangeServiceException
+     *           When something else went wrong with the service.
      */
-    public List<Room> getAllRooms() {
+    public List<Room> getAllRooms() throws ServiceResponseException, ServiceRequestException, ExchangeServiceException {
         List<EmailAddress> rooms = null;
         List<Room> roomList = null;
 
@@ -158,10 +175,8 @@ public class RoomsDao {
         } catch (ClassNotFoundException e) {
             // TODO: Auto-generated catch block.
             e.printStackTrace();
-        } catch (Exception e) {
-            // TODO: Auto-generated catch block.
-            e.printStackTrace();
         }
+        
         return roomList;
     }
 

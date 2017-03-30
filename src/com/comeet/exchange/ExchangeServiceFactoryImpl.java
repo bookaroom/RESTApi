@@ -11,6 +11,7 @@ import microsoft.exchange.webservices.data.core.ExchangeService;
 import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion;
 import microsoft.exchange.webservices.data.credential.ExchangeCredentials;
 import microsoft.exchange.webservices.data.credential.TokenCredentials;
+import microsoft.exchange.webservices.data.credential.WebCredentials;
 
 public class ExchangeServiceFactoryImpl implements ExchangeServiceFactory {
 
@@ -24,6 +25,8 @@ public class ExchangeServiceFactoryImpl implements ExchangeServiceFactory {
                     "https://outlook.office365.com/EWS/Exchange.asmx";
 
     private static final int LOGGED_TOKEN_LENGTH = 8;
+    
+    private static final String MASKED_PASSWORD_CHAR = "*";
 
     private AuthContext authContext = null;
 
@@ -58,21 +61,38 @@ public class ExchangeServiceFactoryImpl implements ExchangeServiceFactory {
             throw new ExchangeClientException("Null AuthContext");
         }
 
+        ExchangeCredentials creds = null;
+        
         // Note: Some work could be done to support other authentication types.
         String token = authContext.getBearerToken();
-        String shortToken = token.substring(0, token.length() < LOGGED_TOKEN_LENGTH ? token.length()
-                        : LOGGED_TOKEN_LENGTH);
-        ApiLogger.logger.log(Level.FINE,
-                        String.format("Using token-based credentials [{0}...]", shortToken));
-        TokenCredentials creds;
-        try {
-            creds = new TokenCredentials(token);
-        } catch (Exception e) {
-            ApiLogger.logger.log(Level.SEVERE, "Error building exchange token-based credentials",
-                            e);
-            throw new ExchangeClientException(e);
+        if (token != null && token.length() > 0) {
+            String shortToken = token.substring(0, token.length() < LOGGED_TOKEN_LENGTH ? token.length()
+                            : LOGGED_TOKEN_LENGTH);
+            ApiLogger.logger.log(Level.FINE,
+                            String.format("Using token-based credentials [{0}...]", shortToken));
+            try {
+                return new TokenCredentials(token);
+            } catch (Exception e) {
+                ApiLogger.logger.log(Level.SEVERE, "Error building exchange token-based credentials",
+                                e);
+                throw new ExchangeClientException(e);
+            }
         }
-        return creds;
+        
+        String basicEncoded = authContext.getBasicEncoded();
+        if (basicEncoded != null && basicEncoded.length() > 0) {
+            String username = authContext.getBasicUsername();
+            String password = authContext.getBasicPassword();
+            StringBuilder maskedPasswordBuilder = new StringBuilder();
+            for (int i = 0; i < password.length(); i++) {
+                maskedPasswordBuilder.append(MASKED_PASSWORD_CHAR);
+            }
+            ApiLogger.logger.log(Level.FINE,
+                            String.format("Using basic credentials [{0}:{1}]", username, maskedPasswordBuilder.toString()));
+            return new WebCredentials(username, password);
+        }
+        
+        throw new ExchangeClientException("No recognized authentication context provided.");    
     }
 
     private URI getExchangeWebServiceEndpoint() throws ExchangeClientException {

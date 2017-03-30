@@ -1,5 +1,6 @@
 package com.comeet;
 
+import com.comeet.auth.AuthContextException;
 import com.comeet.auth.AuthContextFactory;
 import com.comeet.exchange.ExchangeClientException;
 import com.comeet.exchange.ExchangeServiceFactory;
@@ -16,9 +17,13 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType; 
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.Response.Status;
 
 import microsoft.exchange.webservices.data.core.ExchangeService;
 import microsoft.exchange.webservices.data.core.exception.service.remote.ServiceResponseException;
@@ -30,6 +35,10 @@ public class UserService {
 
     ExchangeServiceFactory serviceFactory = new ExchangeServiceFactoryImpl();
 
+    private static final String WWW_AUTHENTICATE = "WWW-Authenticate";
+
+    private static final String BEARER_CHALLENGE = "Bearer scope=\"comeet\"";
+
     /**
      * The implementing method for GET /rooms
      * 
@@ -39,7 +48,6 @@ public class UserService {
     @Path("/rooms")
     @Produces("application/json")
     public List<Room> getRooms(@Context HttpHeaders headers) {
-
         try {
             serviceFactory.setAuthContext(authFactory.buildContext(headers));
 
@@ -48,6 +56,10 @@ public class UserService {
                 RoomsDao roomsDao = new RoomsDao(service);
                 return roomsDao.getAllRooms();
             }
+        } catch (AuthContextException e) {
+            // TODO Use OAuth2 for real.
+            e.printStackTrace();
+            throw new WebApplicationException(buildBearerChallenge(e).build());
         } catch (Exception e) {
             // TODO Respond with appropriate HTTP code and json error detail.
             e.printStackTrace();
@@ -70,7 +82,7 @@ public class UserService {
      */
     @GET
     @Path("/user/meetings")
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED) 
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public List<Meeting> getUserMeetings(@Context HttpHeaders headers,
                     @DefaultValue("") @QueryParam("start") String start,
                     @DefaultValue("") @QueryParam("end") String end)
@@ -84,6 +96,10 @@ public class UserService {
                 UsersDao ud = new UsersDao(service);
                 return ud.getUserMeetings(start, end);
             }
+        } catch (AuthContextException e) {
+            // TODO Use OAuth2 for real.
+            e.printStackTrace();
+            throw new WebApplicationException(buildBearerChallenge(e).build());
         } catch (ExchangeClientException e) {
             // TODO Respond with appropriate HTTP code and json error detail.
             e.printStackTrace();
@@ -129,11 +145,33 @@ public class UserService {
                 List<String> recips = Arrays.asList(recipients.split("\\s*,\\s*"));
                 return roomsDao.makeAppointment(start, end, subject, body, recips);
             }
+        } catch (AuthContextException e) {
+            // TODO Use OAuth2 for real.
+            e.printStackTrace();
+            throw new WebApplicationException(buildBearerChallenge(e).build());
         } catch (ExchangeClientException e) {
             // TODO Respond with appropriate HTTP code and json error detail.
             e.printStackTrace();
             throw new RuntimeException(e);
         }
+    }
+
+
+
+    /**
+     * Builds a WWW-Authenticate response for an oauth 2 Bearer token.
+     * http://stackoverflow.com/questions/8341763/proper-www-authenticate-header-for-oauth-provider
+     * https://tools.ietf.org/html/rfc6750#section-3
+     * 
+     * @param authException The AuthenticationException
+     * @return A ResponseBuilder with WWW-Authenticate Bearer header.
+     */
+    private ResponseBuilder buildBearerChallenge(AuthContextException authException) {
+        ResponseBuilder builder = Response.status(Status.UNAUTHORIZED)
+                        .header(WWW_AUTHENTICATE, BEARER_CHALLENGE)
+                        .type(MediaType.TEXT_PLAIN)
+                        .entity(authException.toString());
+        return builder;
     }
 
 }
