@@ -1,6 +1,6 @@
 package com.comeet.data;
 
-import com.comeet.BuildingList;
+import com.comeet.MetroBuildingList;
 import com.comeet.Room;
 import com.comeet.utilities.ApiLogger;
 import com.mysql.cj.jdbc.MysqlDataSource;
@@ -116,9 +116,9 @@ public class DataRepository {
      * @return The list of metro areas and their room list names
      * @throws Exception On an unexpected error.
      */ 
-    public List<BuildingList> retrieveSearchCriteria(String domain) throws Exception {
+    public List<MetroBuildingList> retrieveSearchCriteria(String domain) throws Exception {
 
-        Map<String, BuildingList> searchFields = null;
+        Map<String, MetroBuildingList> searchFields = null;
         try {
 
             setupConn();
@@ -140,17 +140,18 @@ public class DataRepository {
             
             while (rs.next()) {                
                 
-                String metro = rs.getString(rs.findColumn("name"));
+                String buildingName = rs.getString(rs.findColumn("name"));
+                String metroName = rs.getString(rs.findColumn("Metroarea"));
+                String buildingEmail = rs.getString(rs.findColumn("email"));
                 
-                if (searchFields.get(rs.getString(rs.findColumn("Metroarea"))) == null) {
-                    BuildingList newList = new BuildingList();
-                    newList.setEmail(rs.getString(rs.findColumn("email")));
-                    newList.setMetro(rs.getString(rs.findColumn("Metroarea")));
-                    newList.addBuilding(metro);
-                    searchFields.put(rs.getString(rs.findColumn("Metroarea")), newList);
+                if (searchFields.get(metroName) == null) {
+                    MetroBuildingList newList = new MetroBuildingList();
+                    newList.setMetro(metroName);
+                    newList.setBuilding(buildingEmail, metroName);
+                    searchFields.put(metroName, newList);
                 } else {
-                    BuildingList roomLists = searchFields.get(rs.getString(rs.findColumn("Metroarea")));
-                    roomLists.addBuilding(metro);
+                    MetroBuildingList roomLists = searchFields.get(metroName);
+                    roomLists.setBuilding(buildingEmail, metroName);;
                 } 
             }
             

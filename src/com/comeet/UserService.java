@@ -184,28 +184,27 @@ public class UserService {
      * Example URL:
      * http://localhost:8080/pfizer.com/searchCriteria
      * </p>
-     * @param org domain of organization to search for
+     * @param orgdomain domain of organization to search for
      * @return The list of metro areas and their room list names
      * @throws ServiceResponseException If the result is not 200 OK.
      * @throws Exception On an unexpected error.
     */ 
     @GET
-    @Path("/{organization}/searchCriteria")
+    @Path("/{orgdomain}/searchCriteria")
     @Produces("application/json")
-    public List<BuildingList> getSearchCriteria(
-                    @DefaultValue("") @PathParam("organization") String org) throws Exception {
+    public List<MetroBuildingList> getSearchCriteria(
+                    @DefaultValue("") @PathParam("orgdomain") String orgdomain) throws Exception {
     
         //get the search parameters from the database
         try {
             RoomsDao roomsDao = new RoomsDao(null);
-            return roomsDao.getCriteria(org);
+            return roomsDao.getCriteria(orgdomain);
         } catch (Exception ex) {
             ApiLogger.logger.log(Level.SEVERE, "Error getting search criteria database", ex);
             throw ex;
         }      
     }
     
-    //TO-DO: Needs to be tested since there is no 
     /**
      * method for GET /rooms/{roomlist}
      * <p>
@@ -220,11 +219,15 @@ public class UserService {
     @GET
     @Path("/rooms/{roomlist}")
     @Produces("application/json")
-    public List<Room> getBuildingRooms(
+    public List<Room> getBuildingRooms(@Context HttpHeaders headers,
                     @DefaultValue("") @PathParam("roomlist") String buildingEmail) throws Exception {
         // each call should define new instance of DAO object
-        try {
-            RoomsDao roomsDao = new RoomsDao(null); 
+        
+        serviceFactory.setAuthContext(authFactory.buildContext(headers));
+        
+        try (ExchangeService service = serviceFactory.create()) {
+            
+            RoomsDao roomsDao = new RoomsDao(service); 
             return roomsDao.getBuildingRooms(buildingEmail);
         } catch (Exception e) {
             ApiLogger.logger.log(Level.SEVERE, "Error getting rooms for a building", e);
@@ -232,15 +235,3 @@ public class UserService {
         }
     }
 }
-
-/*
- * @GET
- * 
- * @Path("/meetings/userid") //userid is an email
- * 
- * @Produces("application/json") // @Produces(MediaType.APPLICATION_XML) public List<Room>
- * getUserMeetings() { MeetingsDao meetingsDao = new MeetingsDao(); return
- * meetingsDao.getUserMeetings(String email);
- * 
- * }
- */
