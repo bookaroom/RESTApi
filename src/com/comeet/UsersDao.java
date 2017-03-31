@@ -1,6 +1,7 @@
 package com.comeet;
 
-import java.text.ParseException;
+import com.comeet.utilities.ApiLogger;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,9 +10,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
-
-import org.joda.time.DateTime;
+import java.util.logging.Level;
 
 import microsoft.exchange.webservices.data.core.ExchangeService;
 import microsoft.exchange.webservices.data.core.PropertySet;
@@ -27,14 +26,27 @@ import microsoft.exchange.webservices.data.property.complex.Attendee;
 import microsoft.exchange.webservices.data.property.complex.AttendeeCollection;
 import microsoft.exchange.webservices.data.property.complex.EmailAddress;
 import microsoft.exchange.webservices.data.property.complex.EmailAddressCollection;
-import microsoft.exchange.webservices.data.property.complex.EmailAddressDictionary;
 import microsoft.exchange.webservices.data.property.complex.MessageBody;
 import microsoft.exchange.webservices.data.search.CalendarView;
 import microsoft.exchange.webservices.data.search.FindItemsResults;
 
-
-
+// BUGBUG: [BOOKAROOM-45] https://bookaroom.atlassian.net/browse/BOOKAROOM-45
+//CHECKSTYLE DISABLE: JavadocMethod
 public class UsersDao {
+    
+    /**
+     * The Exchange service is injected via the constructor.
+     */
+    private ExchangeService service;
+
+    /**
+     * Constructs a Users Data Access Object.
+     * @param service The exchange service to access for User data.
+     */
+    public UsersDao(ExchangeService service) {
+        this.service = service;
+    }
+    
     private List<String> getApptAttendees(Appointment appt) throws ServiceLocalException {
         List<String> myAttendees = new ArrayList<String>();
         AttendeeCollection ac = appt.getOptionalAttendees();
@@ -51,8 +63,7 @@ public class UsersDao {
         return myAttendees;
     }
 
-    public String lookUpEmailAddress(ExchangeService service, String address) throws Exception {
-
+    public String lookUpEmailAddress(String address) throws Exception {
         NameResolutionCollection nrc =
                         service.resolveName(address, ResolveNameSearchLocation.DirectoryOnly, true);
         Iterator<NameResolution> i = nrc.iterator();
@@ -61,10 +72,7 @@ public class UsersDao {
 
     }
 
-
-
-    public List<Person> attendees(ExchangeService service, Meeting m, Appointment appt,
-                    AttendeeCollection ac) throws Exception {
+    public List<Person> attendees(Meeting m, Appointment appt, AttendeeCollection ac) throws Exception {
         List<Attendee> list = ac.getItems();
 
         // System.out.println("size: " + ac.getCount() + "\n");
@@ -75,32 +83,29 @@ public class UsersDao {
 
             Person p = new Person();
             p.setName(a.getName());
-            p.setEmail(lookUpEmailAddress(service, a.getAddress()));
+            p.setEmail(lookUpEmailAddress(a.getAddress()));
             people.add(p);
         }
 
         return people;
     }
 
-
-    public void requiredAttendees(ExchangeService service, Meeting m, Appointment appt)
+    public void requiredAttendees(Meeting m, Appointment appt)
                     throws Exception {
 
         AttendeeCollection ac = appt.getRequiredAttendees();
 
-        m.setRequiredattendees(attendees(service, m, appt, ac));
-
+        m.setRequiredattendees(attendees(m, appt, ac));
+        
     }
 
-
-    public void optionalAttendees(ExchangeService service, Meeting m, Appointment appt)
+    public void optionalAttendees(Meeting m, Appointment appt)
                     throws Exception {
         AttendeeCollection ac = appt.getOptionalAttendees();
-        m.setOptionaldattendees(attendees(service, m, appt, ac));
+        m.setOptionaldattendees(attendees(m, appt, ac));
     }
 
-
-    public Map<String, String> roomMap(ExchangeService service) throws Exception {
+    public Map<String, String> roomMap() throws Exception {
         Map<String, String> roomMap = new HashMap<String, String>();
         EmailAddressCollection roomLists = service.getRoomLists();
         List<EmailAddress> roomListsTwo = roomLists.getItems();
@@ -110,13 +115,13 @@ public class UsersDao {
             for (EmailAddress add : col) {
                 roomMap.put(add.getName(), add.getAddress());
             }
-
+            
         }
-
+        
         return roomMap;
     }
 
-
+    
     public Room populateRoomData(Map<String, String> roomMap, Appointment appt)
                     throws ServiceLocalException {
 
@@ -130,10 +135,10 @@ public class UsersDao {
     }
 
 
-    public Person meetingCreator(ExchangeService service, Appointment appt) throws Exception {
+    public Person meetingCreator(Appointment appt) throws Exception {
         Person creator = new Person();
         EmailAddress organizer = appt.getOrganizer();
-        creator.setEmail(lookUpEmailAddress(service, organizer.getAddress()));
+        creator.setEmail(lookUpEmailAddress(organizer.getAddress()));
         creator.setName(organizer.getName());
 
         return creator;
@@ -149,18 +154,15 @@ public class UsersDao {
                 body = mesBod.toString();
             }
         } catch (Exception e) {
+            ApiLogger.logger.log(Level.SEVERE, "Failure getting appointment body", e);
         }
 
         return body;
     }
 
 
-    public List<Appointment> findAppointments(ExchangeService service, String start, String end)
-                    throws Exception {
-        // SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd*HH:mm:ss");
+    public List<Appointment> findAppointments(String start, String end) throws Exception {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-        // formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
-
         Date startDate = formatter.parse(start);// "2010-05-01 12:00:00");
         Date endDate = formatter.parse(end); // "2010-05-30 13:00:00");
 
@@ -168,6 +170,7 @@ public class UsersDao {
         CalendarFolder cf = CalendarFolder.bind(service, WellKnownFolderName.Calendar);
         FindItemsResults<Appointment> findResults =
                         cf.findAppointments(new CalendarView(startDate, endDate));
+        
         return findResults.getItems();
     }
 
@@ -181,12 +184,10 @@ public class UsersDao {
      */
     public List<Meeting> getUserMeetings(String start, String end) throws Exception {
 
-        ExchangeService service = (new ExchangeConnection()).getService();
-
         List<Meeting> meetings = new ArrayList<Meeting>();
-        Map<String, String> roomMap = roomMap(service);
+        Map<String, String> roomMap = roomMap();
 
-        List<Appointment> results = findAppointments(service, start, end);
+        List<Appointment> results = findAppointments(start, end);
 
         for (Appointment appt : results) {
             if (appt != null) {
@@ -197,13 +198,13 @@ public class UsersDao {
                 m.setBody(appointmentBody(appt));
                 m.setSubject(appt.getSubject());
                 m.setLocation(appt.getLocation());
-                m.setMeetingcreator(meetingCreator(service, appt));
+                m.setMeetingcreator(meetingCreator(appt));
                 m.setRoom(populateRoomData(roomMap, appt));
 
                 Appointment attAppt = Appointment.bind(service, appt.getId(),
                                 new PropertySet(BasePropertySet.FirstClassProperties));
-                requiredAttendees(service, m, attAppt);
-                optionalAttendees(service, m, attAppt);
+                requiredAttendees(m, attAppt);
+                optionalAttendees(m, attAppt);
 
                 meetings.add(m);
             }
