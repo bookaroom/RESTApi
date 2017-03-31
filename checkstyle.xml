@@ -20,6 +20,12 @@
 
     <property name="severity" value="error"/>
 
+	<module name = "SuppressionCommentFilter">
+	  <property name="offCommentFormat" value="CHECKSTYLE DISABLE\: ([\w\|]+)"/>
+	  <property name="onCommentFormat" value="CHECKSTYLE ENABLE\: ([\w\|]+)"/>
+	  <property name="checkFormat" value="$1"/>
+	</module>
+	
     <property name="fileExtensions" value="java, properties, xml"/>
     <!-- Checks for whitespace                               -->
     <!-- See http://checkstyle.sf.net/config_whitespace.html -->
@@ -28,6 +34,7 @@
         </module>
 
     <module name="TreeWalker">
+    	<module name="FileContentsHolder"/>
         <module name="OuterTypeFilename"/>
         <module name="IllegalTokenText">
             <property name="tokens" value="STRING_LITERAL, CHAR_LITERAL"/>
