@@ -1,5 +1,6 @@
 package com.comeet.data;
 
+import com.comeet.BuildingList;
 import com.comeet.Room;
 import com.comeet.utilities.ApiLogger;
 import com.mysql.cj.jdbc.MysqlDataSource;
@@ -8,6 +9,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 
@@ -37,7 +42,7 @@ public class DataRepository {
         sqlConnection.close();
     }
 
-    private void getRooms() {
+    private void getRooms() throws Exception {
         try {
 
             setupConn();
@@ -48,7 +53,8 @@ public class DataRepository {
             // TODO - process result set to appropriate result
 
         } catch (Exception e) {
-            ApiLogger.logger.log(Level.SEVERE, "Error getting rooms from database database", e);
+            //ApiLogger.logger.log(Level.SEVERE, "Error getting rooms from database database", e);
+            throw e;
         }
 
     }
@@ -59,7 +65,7 @@ public class DataRepository {
      * @param email The email address for the room.
      * @return Room metadata.
      */
-    public Room retrieveRoomMetadata(String email) {
+    public Room retrieveRoomMetadata(String email) throws Exception {
 
         Room roomMetadata = null;
 
@@ -97,10 +103,65 @@ public class DataRepository {
 
         } catch (Exception e) {
             // e.printStackTrace();
-            ApiLogger.logger.log(Level.SEVERE, "Error getting rooms from database database", e);
+            //ApiLogger.logger.log(Level.SEVERE, "Error getting rooms from database database", e);
+            throw e;
         }
 
         return roomMetadata;
     }
+    
+    /**
+     * Retrieves the search criteria from the database based on the domain
+     * @param domain The domain of organization to search for
+     * @return The list of metro areas and their room list names
+     * @throws Exception On an unexpected error.
+     */ 
+    public List<BuildingList> retrieveSearchCriteria(String domain) throws Exception {
 
+        Map<String, BuildingList> searchFields = null;
+        try {
+
+            setupConn();
+
+            if (sqlConnection == null || sqlConnection.isClosed()) {
+                System.out.println("no connection to database");
+                return null;
+            }
+
+            String stmtStr = "select email, name, Metroarea from Roomlist where domain = ?;";
+            PreparedStatement stmt = sqlConnection.prepareStatement(stmtStr);
+            stmt.setString(1, domain);
+            stmt.execute();
+            
+            ResultSet rs = stmt.getResultSet();
+            rs.beforeFirst();
+
+            searchFields = new HashMap();
+            
+            while (rs.next()) {                
+                
+                String metro = rs.getString(rs.findColumn("name"));
+                
+                if (searchFields.get(rs.getString(rs.findColumn("Metroarea"))) == null) {
+                    BuildingList newList = new BuildingList();
+                    newList.setEmail(rs.getString(rs.findColumn("email")));
+                    newList.setMetro(rs.getString(rs.findColumn("Metroarea")));
+                    newList.addBuilding(metro);
+                    searchFields.put(rs.getString(rs.findColumn("Metroarea")), newList);
+                } else {
+                    BuildingList roomLists = searchFields.get(rs.getString(rs.findColumn("Metroarea")));
+                    roomLists.addBuilding(metro);
+                } 
+            }
+            
+            closeConnection();
+            
+            return new ArrayList(searchFields.values());
+
+        } catch (Exception e) {
+            // e.printStackTrace();
+            //ApiLogger.logger.log(Level.SEVERE, "Error getting rooms from database database", e);
+            throw e;
+        }
+    }
 }

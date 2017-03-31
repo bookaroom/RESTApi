@@ -11,6 +11,7 @@
 	</properties>
 
 	<build>
+		<finalName>comeet</finalName>
 		<sourceDirectory>src</sourceDirectory>
 		<resources>
 			<resource>

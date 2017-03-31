@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.logging.Level;
 
 import microsoft.exchange.webservices.data.core.ExchangeService;
 import microsoft.exchange.webservices.data.core.exception.service.remote.ServiceRequestException;
@@ -166,6 +167,9 @@ public class RoomsDao {
         } catch (ClassNotFoundException e) {
             // TODO: Auto-generated catch block.
             e.printStackTrace();
+        } catch (Exception e) {
+            // TODO: Auto-generated catch block.
+            e.printStackTrace();
         }
 
         return roomList;
@@ -190,7 +194,7 @@ public class RoomsDao {
      * Fetches a room metadata.
      * @param room The room of interest, to be filled in.
      */
-    public static void retrieveMetadata(Room room) {
+    public static void retrieveMetadata(Room room) throws Exception {
         DataRepository db = new DataRepository();
 
         Room metadata = db.retrieveRoomMetadata(room.getEmail());
@@ -208,5 +212,107 @@ public class RoomsDao {
             room.setRoomPic(metadata.getRoomPic());
         }
 
+
+    }
+    
+    /**
+     * Implementing method to get the search criteria for a given domain
+     * @param domain domain of organization to search for
+     * @return The list of metro areas and their room list names
+     * @throws Exception On an unexpected error.
+     */ 
+    public List<BuildingList> getCriteria(String domain) throws Exception {
+        DataRepository db = new DataRepository();
+        List<BuildingList> result = db.retrieveSearchCriteria(domain);
+        
+        return result;
+    }
+    
+    
+    /**
+     * TODO
+     * @param domain domain of organization to search for
+     * @return The list of metro areas and their room list names
+     * @throws Exception On an unexpected error.
+     */ 
+    private List<EmailAddress> getBuildingRoomlist(String email) throws Exception {
+
+        List<EmailAddress> names = null;
+
+        try {
+            EmailAddressCollection c = service.getRoomLists();
+            for (EmailAddress e : c) {
+                if (e.getAddress().equalsIgnoreCase(email)) {
+                    
+                    names = new ArrayList<EmailAddress>();
+                    Collection<EmailAddress> rooms = service.getRooms(e);
+           
+                    for (EmailAddress r : rooms) {
+                        System.out.println(r.toString());
+                        System.out.println(r.getAddress());
+                        System.out.println(r.getName());
+                        names.add(r);
+                    }
+                }
+            }
+        } catch (ServiceRequestException e) {
+            throw e;
+        } catch (ServiceResponseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ExchangeServiceException(e);
+        }
+        return names;
+    }
+    
+    /**
+     * Gets all rooms at the organization.
+     * 
+     * @return A list of rooms.
+     */
+    public List<Room> getBuildingRooms(String buildingEmail) throws Exception {
+        List<EmailAddress> rooms = null;
+        try {
+            rooms = getBuildingRoomlist(buildingEmail);
+        } catch (Exception ex) {
+            // TODO Auto-generated catch block
+            throw ex;
+        }
+
+        List<Room> roomList = null;
+        try {
+            File file = new File("Roo.dat");
+
+            file.delete();
+
+            if (!file.exists()) {
+
+                roomList = new ArrayList<Room>();
+
+
+                for (EmailAddress s : rooms) {
+                    Room room = new Room();
+                    room.setName(s.getName());
+                    room.setEmail(s.getAddress());
+                    retrieveMetadata(room);
+                    roomList.add(room);
+                }
+
+                // User user = new User(1, "Peter", "Teacher");
+
+                // userList.add(user);
+                saveRoomList(roomList);
+            } else {
+                FileInputStream fis = new FileInputStream(file);
+                ObjectInputStream ois = new ObjectInputStream(fis);
+                roomList = (List<Room>) ois.readObject();
+                ois.close();
+            }
+        } catch (IOException e) {
+            throw e;
+        } catch (ClassNotFoundException e) {
+            throw e;
+        }
+        return roomList;
     }
 }

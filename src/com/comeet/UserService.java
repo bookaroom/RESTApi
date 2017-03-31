@@ -5,9 +5,12 @@ import com.comeet.auth.AuthContextFactory;
 import com.comeet.exchange.ExchangeClientException;
 import com.comeet.exchange.ExchangeServiceFactory;
 import com.comeet.exchange.ExchangeServiceFactoryImpl;
+import com.comeet.utilities.ApiLogger;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
@@ -15,6 +18,7 @@ import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
@@ -156,8 +160,6 @@ public class UserService {
         }
     }
 
-
-
     /**
      * Builds a WWW-Authenticate response for an oauth 2 Bearer token.
      * http://stackoverflow.com/questions/8341763/proper-www-authenticate-header-for-oauth-provider
@@ -173,7 +175,62 @@ public class UserService {
                         .entity(authException.toString());
         return builder;
     }
-
+    
+    
+    
+    /**
+     * Implementing method for GET /organization/searchCriteria
+     * <p>
+     * Example URL:
+     * http://localhost:8080/pfizer.com/searchCriteria
+     * </p>
+     * @param org domain of organization to search for
+     * @return The list of metro areas and their room list names
+     * @throws ServiceResponseException If the result is not 200 OK.
+     * @throws Exception On an unexpected error.
+    */ 
+    @GET
+    @Path("/{organization}/searchCriteria")
+    @Produces("application/json")
+    public List<BuildingList> getSearchCriteria(
+                    @DefaultValue("") @PathParam("organization") String org) throws Exception {
+    
+        //get the search parameters from the database
+        try {
+            RoomsDao roomsDao = new RoomsDao(null);
+            return roomsDao.getCriteria(org);
+        } catch (Exception ex) {
+            ApiLogger.logger.log(Level.SEVERE, "Error getting search criteria database", ex);
+            throw ex;
+        }      
+    }
+    
+    //TO-DO: Needs to be tested since there is no 
+    /**
+     * method for GET /rooms/{roomlist}
+     * <p>
+     * Example URL:
+     * http://localhost:8080/pfizer.com/searchCriteria
+     * </p>
+     * @param buildingEmail The email of the room list to search for
+     * @return A list of rooms in a room list
+     * @throws ServiceResponseException If the result is not 200 OK.
+     * @throws Exception On an unexpected error.
+     */ 
+    @GET
+    @Path("/rooms/{roomlist}")
+    @Produces("application/json")
+    public List<Room> getBuildingRooms(
+                    @DefaultValue("") @PathParam("roomlist") String buildingEmail) throws Exception {
+        // each call should define new instance of DAO object
+        try {
+            RoomsDao roomsDao = new RoomsDao(null); 
+            return roomsDao.getBuildingRooms(buildingEmail);
+        } catch (Exception e) {
+            ApiLogger.logger.log(Level.SEVERE, "Error getting rooms for a building", e);
+            throw e;
+        }
+    }
 }
 
 /*
