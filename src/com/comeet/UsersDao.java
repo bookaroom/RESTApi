@@ -123,7 +123,7 @@ public class UsersDao {
 
     
     public Room populateRoomData(Map<String, String> roomMap, Appointment appt)
-                    throws ServiceLocalException {
+                    throws ServiceLocalException, Exception {
 
         Room theRoom = new Room();
         String roomEmail = roomMap.get(appt.getLocation());

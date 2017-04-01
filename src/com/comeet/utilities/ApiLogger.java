@@ -6,15 +6,18 @@ import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 public class ApiLogger implements ServletContextListener {
+    
+    
     public static Logger logger;
-
+    private static SimpleFormatter formatterTxt;
     private static FileHandler fileTxt;
-
+    
     /**
      * Sets up the logger
      * 
@@ -32,10 +35,13 @@ public class ApiLogger implements ServletContextListener {
             rootLogger.removeHandler(handlers[0]);
         }
 
-        logger.setLevel(Level.INFO);
+        logger.setLevel(Level.SEVERE);
+        //proper path needs to be set
         fileTxt = new FileHandler("Logging.txt");
 
         // create a TXT formatter
+        formatterTxt = new SimpleFormatter();
+        fileTxt.setFormatter(formatterTxt);
         logger.addHandler(fileTxt);
 
     }

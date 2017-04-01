@@ -129,7 +129,7 @@ public class RoomsDao {
      * @throws ExchangeServiceException When something else went wrong with the service.
      */
     public List<Room> getAllRooms() throws ServiceResponseException, ServiceRequestException,
-                    ExchangeServiceException {
+                    ExchangeServiceException, IOException, ClassNotFoundException, Exception {
         List<EmailAddress> rooms = null;
         List<Room> roomList = null;
 
@@ -161,11 +161,11 @@ public class RoomsDao {
                 ois.close();
             }
         } catch (IOException e) {
-            // TODO: Auto-generated catch block.
-            e.printStackTrace();
+            throw e;
         } catch (ClassNotFoundException e) {
-            // TODO: Auto-generated catch block.
-            e.printStackTrace();
+            throw e;
+        } catch (Exception e) {
+            throw e;
         }
 
         return roomList;
@@ -190,7 +190,7 @@ public class RoomsDao {
      * Fetches a room metadata.
      * @param room The room of interest, to be filled in.
      */
-    public static void retrieveMetadata(Room room) {
+    public static void retrieveMetadata(Room room) throws Exception {
         DataRepository db = new DataRepository();
 
         Room metadata = db.retrieveRoomMetadata(room.getEmail());
@@ -208,5 +208,86 @@ public class RoomsDao {
             room.setRoomPic(metadata.getRoomPic());
         }
 
+
+    }
+    
+    /**
+     * Implementing method to get the search criteria for a given domain
+     * @param domain domain of organization to search for
+     * @return The list of metro areas and their room list names
+     * @throws Exception On an unexpected error.
+     */ 
+    public List<MetroBuildingList> getCriteria(String domain) throws Exception {
+        DataRepository db = new DataRepository();
+        List<MetroBuildingList> result = db.retrieveSearchCriteria(domain);
+        
+        return result;
+    }
+    
+    
+    /**
+     * retrieve the rooms in a selected building from exchange
+     * @param email email address of the building list to retrieve
+     * @return The list of metro areas and their room list names
+     * @throws Exception On an unexpected error.
+     */ 
+    private List<EmailAddress> getBuildingRoomlist(String email) throws ServiceRequestException, 
+                                               ServiceResponseException, ExchangeServiceException {
+
+        List<EmailAddress> names = null;
+
+        try {
+            EmailAddressCollection c = service.getRoomLists();
+            for (EmailAddress e : c) {
+                if (e.getAddress().equalsIgnoreCase(email)) {
+                    
+                    names = new ArrayList<EmailAddress>();
+                    Collection<EmailAddress> rooms = service.getRooms(e);
+           
+                    for (EmailAddress r : rooms) {
+                        names.add(r);
+                    }
+                }
+            }
+        } catch (ServiceRequestException e) {
+            throw e;
+        } catch (ServiceResponseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ExchangeServiceException(e);
+        }
+        return names;
+    }
+    
+    /**
+     * Gets all rooms at the organization.
+     * 
+     * @return A list of rooms.
+     */
+    public List<Room> getBuildingRooms(String buildingEmail) throws Exception {
+        
+        List<EmailAddress> rooms = null;
+        try {
+            rooms = getBuildingRoomlist(buildingEmail);
+        } catch (Exception ex) {
+            throw ex;
+        }
+
+        List<Room> roomList = null;
+        try {
+            roomList = new ArrayList<Room>();
+            for (EmailAddress s : rooms) {
+                Room room = new Room();
+                room.setName(s.getName());
+                room.setEmail(s.getAddress());
+                retrieveMetadata(room);
+                roomList.add(room);
+            }
+        } catch (IOException e) {
+            throw e;
+        } catch (ClassNotFoundException e) {
+            throw e;
+        }
+        return roomList;
     }
 }
