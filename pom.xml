@@ -113,6 +113,14 @@
 			<artifactId>javax.servlet-api</artifactId>
 			<version>3.0.1</version>
 		</dependency>
+		
+		<!-- Testing -->
+		<dependency>
+			<groupId>com.jayway.restassured</groupId>
+			<artifactId>rest-assured</artifactId>
+			<version>1.2.3</version>
+		</dependency>
+		
 
 
 	</dependencies>
