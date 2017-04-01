@@ -217,10 +217,11 @@ public class UserService {
      * @throws Exception On an unexpected error.
      */ 
     @GET
-    @Path("/rooms/{roomlist}")
+    @Path("/{orgdomain}/rooms/{roomlist}")
     @Produces("application/json")
     public List<Room> getBuildingRooms(@Context HttpHeaders headers,
-                    @DefaultValue("") @PathParam("roomlist") String buildingEmail) throws Exception {
+                    @DefaultValue("") @PathParam("roomlist") String buildingEmail, 
+                    @PathParam("roomlist") String orgdomain) throws Exception {
         // each call should define new instance of DAO object
         
         serviceFactory.setAuthContext(authFactory.buildContext(headers));
