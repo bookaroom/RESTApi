@@ -42,9 +42,14 @@ public class UserService {
     private static final String WWW_AUTHENTICATE = "WWW-Authenticate";
 
     private static final String BEARER_CHALLENGE = "Bearer scope=\"comeet\"";
+    
+    private static final String BASIC_CHALLENGE = "Basic";
+    
+    private static final String RECIPIENT_LIST_REGEX = "\\s*,\\s*";
 
     /**
      * The implementing method for GET /rooms
+     * Note: Obsolete. Only used for testing.
      * 
      * @return A list of room objects.
      */
@@ -72,12 +77,14 @@ public class UserService {
     }
 
     /**
-     * Implementing method for GET /user/meetings
+     * Implementing method for GET /{organization}/user/{user}/meetings
      * <p>
      * Example URL:
-     * http://localhost:8080/JavaApplication/user/meetings?start=2017-03-25*12:00:00&end=2017-06-25*12:00:00
+     * http://localhost:8080/comeet/pfizer.com/user/angelo@pfizer.com/meetings?start=2017-03-25T12:00:00Z&end=2017-06-25T12:00:00Z
      * </p>
      * 
+     * @param orgDomain Start of query range.
+     * @param user Start of query range.
      * @param start Start of query range.
      * @param end End of query range.
      * @return Meeting info within the query range.
@@ -85,9 +92,9 @@ public class UserService {
      * @throws Exception On an unexpected error.
      */
     @GET
-    @Path("/user/meetings")
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Path("/{orgDomain}/users/{user}/meetings")
     public List<Meeting> getUserMeetings(@Context HttpHeaders headers,
+                    @PathParam("orgDomain") String orgDomain, @PathParam("user") String user,
                     @DefaultValue("") @QueryParam("start") String start,
                     @DefaultValue("") @QueryParam("end") String end)
                     throws ServiceResponseException, Exception {
@@ -113,31 +120,34 @@ public class UserService {
 
 
     /**
-     * Implementing method for POST /rooms/reserve
+     * Implementing method for POST /{organization}/rooms/{roomRecipient}/reserve"
      * <p>
-     * Example URL: http://localhost:8080/JavaApplication/rooms/reserve start=2017-03-10*9:00:00
-     * end=2017-03-10*10:00:00 subject=testSubject body=testBody
-     * recipients=CambMa1Story305@meetl.ink,jablack@meetl.ink
+     * Example URL: http://localhost:8080/comeet/pfizer.com/rooms/100Main605@pfizer.com/reserve
+     * start=2017-03-10*9:00:00Z end=2017-03-10T10:00:00Z subject=testSubject body=testBody
+     * recipients=jablack@meetl.ink
      * </p>
      * 
      * @param start Start of the reservation.
      * @param end End of the reservation.
      * @param subject Subject of the meeting.
      * @param body Body text for the meeting.
-     * @param recipients Recipients of the meeting.
+     * @param requiredRecipients Recipients of the meeting (required).
+     * @param optionalRecipients Required recipients of the meeting (optional).
      * @return The meeting(s) created.
      * @throws ServiceResponseException If the result is not 200 OK.
      * @throws Exception On an unexpected error.
      */
     @POST
-    @Path("/rooms/reserve")
+    @Path("/{orgDomain}/rooms/{roomRecipient}/reserve")
     @Produces("application/json")
-    public List<Meeting> getRoomsTwo(@Context HttpHeaders headers,
-                    @DefaultValue("") @FormParam("start") String start,
-                    @DefaultValue("") @FormParam("end") String end,
-                    @DefaultValue("") @FormParam("subject") String subject,
-                    @DefaultValue("") @FormParam("body") String body,
-                    @DefaultValue("") @FormParam("recipients") String recipients)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public List<Meeting> reserveRoom(@Context HttpHeaders headers,
+                    @PathParam("orgDomain") String orgDomain,
+                    @PathParam("roomRecipient") String roomRecipient,
+                    @FormParam("subject") String subject, @FormParam("body") String body,
+                    @FormParam("start") String start, @FormParam("end") String end,
+                    @DefaultValue("") @FormParam("required") String requiredRecipients,
+                    @DefaultValue("") @FormParam("optional") String optionalRecipients)
                     throws ServiceResponseException, Exception {
 
         try {
@@ -146,7 +156,7 @@ public class UserService {
             // Each call should define new instance of Service and DAO object
             try (ExchangeService service = serviceFactory.create()) {
                 RoomsDao roomsDao = new RoomsDao(service);
-                List<String> recips = Arrays.asList(recipients.split("\\s*,\\s*"));
+                List<String> recips = Arrays.asList(requiredRecipients.split(RECIPIENT_LIST_REGEX));
                 return roomsDao.makeAppointment(start, end, subject, body, recips);
             }
         } catch (AuthContextException e) {
@@ -161,6 +171,68 @@ public class UserService {
     }
 
     /**
+     * Implementing method for GET /{organization}/metros
+     * <p>
+     * Example URL: http://localhost:8080/pfizer.com/metros
+     * </p>
+     * 
+     * @param orgdomain domain of organization to search for
+     * @return The list of metro areas and the room lists they contain.
+     * @throws ServiceResponseException If the result is not 200 OK.
+     * @throws Exception On an unexpected error.
+     */
+    @GET
+    @Path("/{orgdomain}/metros")
+    @Produces("application/json")
+    public List<MetroBuildingList> getMetroAreas(@Context HttpHeaders headers,
+                    @PathParam("orgdomain") String orgdomain) throws Exception {
+
+        // get the search parameters from the database
+        try {
+            RoomsDao roomsDao = new RoomsDao(null);
+            return roomsDao.getCriteria(orgdomain);
+        } catch (Exception ex) {
+            ApiLogger.logger.log(Level.SEVERE, "Error getting search criteria database", ex);
+            throw ex;
+        }
+    }
+
+    /**
+     * method for GET /{organization}/roomlists/{roomlist}/rooms
+     * <p>
+     * Example URL:
+     * http://localhost:8080/pfizer.com/roomlists/{roomlist}/rooms?start=2017-05-25T00:00:00Z&end=2017-05-31T23:59:59Z
+     * </p>
+     * 
+     * @param buildingEmail The email of the room list to search for
+     * @return A list of rooms in a room list
+     * @throws ServiceResponseException If the result is not 200 OK.
+     * @throws Exception On an unexpected error.
+     */
+    @GET
+    @Path("/{orgdomain}/roomlists/{roomlist}/rooms")
+    @Produces("application/json")
+    public List<Room> getBuildingRooms(@Context HttpHeaders headers,
+                    @PathParam("orgdomain") String orgdomain,
+                    @PathParam("roomlist") String buildingEmail,
+                    @DefaultValue("") @QueryParam("start") String start,
+                    @DefaultValue("") @QueryParam("end") String end) throws Exception {
+        // each call should define new instance of DAO object
+
+        serviceFactory.setAuthContext(authFactory.buildContext(headers));
+
+        try (ExchangeService service = serviceFactory.create()) {
+
+            RoomsDao roomsDao = new RoomsDao(service);
+            return roomsDao.getBuildingRooms(buildingEmail);
+        } catch (Exception e) {
+            ApiLogger.logger.log(Level.SEVERE, "Error getting rooms for a building", e);
+            throw e;
+        }
+    }
+
+
+    /**
      * Builds a WWW-Authenticate response for an oauth 2 Bearer token.
      * http://stackoverflow.com/questions/8341763/proper-www-authenticate-header-for-oauth-provider
      * https://tools.ietf.org/html/rfc6750#section-3
@@ -169,70 +241,10 @@ public class UserService {
      * @return A ResponseBuilder with WWW-Authenticate Bearer header.
      */
     private ResponseBuilder buildBearerChallenge(AuthContextException authException) {
-        ResponseBuilder builder = Response.status(Status.UNAUTHORIZED)
+        ResponseBuilder builder = Response.status(Status.UNAUTHORIZED).type(MediaType.TEXT_PLAIN)
                         .header(WWW_AUTHENTICATE, BEARER_CHALLENGE)
-                        .type(MediaType.TEXT_PLAIN)
+                        //.header(WWW_AUTHENTICATE, BASIC_CHALLENGE)
                         .entity(authException.toString());
         return builder;
-    }
-    
-    
-    
-    /**
-     * Implementing method for GET /organization/searchCriteria
-     * <p>
-     * Example URL:
-     * http://localhost:8080/pfizer.com/searchCriteria
-     * </p>
-     * @param orgdomain domain of organization to search for
-     * @return The list of metro areas and their room list names
-     * @throws ServiceResponseException If the result is not 200 OK.
-     * @throws Exception On an unexpected error.
-    */ 
-    @GET
-    @Path("/{orgdomain}/searchCriteria")
-    @Produces("application/json")
-    public List<MetroBuildingList> getSearchCriteria(
-                    @DefaultValue("") @PathParam("orgdomain") String orgdomain) throws Exception {
-    
-        //get the search parameters from the database
-        try {
-            RoomsDao roomsDao = new RoomsDao(null);
-            return roomsDao.getCriteria(orgdomain);
-        } catch (Exception ex) {
-            ApiLogger.logger.log(Level.SEVERE, "Error getting search criteria database", ex);
-            throw ex;
-        }      
-    }
-    
-    /**
-     * method for GET /rooms/{roomlist}
-     * <p>
-     * Example URL:
-     * http://localhost:8080/pfizer.com/searchCriteria
-     * </p>
-     * @param buildingEmail The email of the room list to search for
-     * @return A list of rooms in a room list
-     * @throws ServiceResponseException If the result is not 200 OK.
-     * @throws Exception On an unexpected error.
-     */ 
-    @GET
-    @Path("/{orgdomain}/rooms/{roomlist}")
-    @Produces("application/json")
-    public List<Room> getBuildingRooms(@Context HttpHeaders headers,
-                    @DefaultValue("") @PathParam("roomlist") String buildingEmail, 
-                    @PathParam("roomlist") String orgdomain) throws Exception {
-        // each call should define new instance of DAO object
-        
-        serviceFactory.setAuthContext(authFactory.buildContext(headers));
-        
-        try (ExchangeService service = serviceFactory.create()) {
-            
-            RoomsDao roomsDao = new RoomsDao(service); 
-            return roomsDao.getBuildingRooms(buildingEmail);
-        } catch (Exception e) {
-            ApiLogger.logger.log(Level.SEVERE, "Error getting rooms for a building", e);
-            throw e;
-        }
     }
 }
