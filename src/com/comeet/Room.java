@@ -1,6 +1,9 @@
 package com.comeet;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -19,8 +22,11 @@ public class Room implements Serializable {
     private Integer capacity = -1;
     private String navigation = "";
     private String roomPicture = "";
+    private List<FreeBusySlot> freebusy;
 
-    public Room() {}
+    public Room() {
+        freebusy = new ArrayList();
+    }
 
     public String getName() {
         return name;
@@ -130,4 +136,16 @@ public class Room implements Serializable {
         return this.roomPicture;
     }
 
+    public void addFreeBusyTime(FreeBusySlot slot) {
+        this.freebusy.add(slot);
+    }
+    
+    @XmlElement
+    public List<FreeBusySlot> getFreeBusy() {
+        return this.freebusy;
+    }
+
+    
 }
+
+
