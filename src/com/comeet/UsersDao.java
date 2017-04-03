@@ -126,9 +126,10 @@ public class UsersDao {
                     throws ServiceLocalException, Exception {
 
         Room theRoom = new Room();
+        RoomsDao roomDao = new RoomsDao(null);
         String roomEmail = roomMap.get(appt.getLocation());
         theRoom.setEmail(roomEmail);
-        RoomsDao.retrieveMetadata(theRoom);
+        roomDao.retrieveMetadata(theRoom);
         theRoom.setName(appt.getLocation());
 
         return theRoom;

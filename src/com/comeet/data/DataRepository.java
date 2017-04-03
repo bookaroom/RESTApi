@@ -5,9 +5,11 @@ import com.comeet.Room;
 import com.comeet.utilities.ApiLogger;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import java.io.InputStream;
+import java.net.ConnectException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,7 +18,11 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 
-
+/**
+ * Manages connections to and retrieves data from the database.
+ * @author Dairai
+ *
+ */
 public class DataRepository {
 
     private Connection sqlConnection;
@@ -43,20 +49,12 @@ public class DataRepository {
     }
 
     private void getRooms() throws Exception {
-        try {
 
-            setupConn();
+        setupConn();
 
-            Statement stmt = sqlConnection.createStatement();
-            ResultSet rs = stmt.executeQuery("select * from Rooms");
-
-            // TODO - process result set to appropriate result
-
-        } catch (Exception e) {
-            //ApiLogger.logger.log(Level.SEVERE, "Error getting rooms from database database", e);
-            throw e;
-        }
-
+        Statement stmt = sqlConnection.createStatement();
+        ResultSet rs = stmt.executeQuery("select * from Rooms");
+        // TODO - process result set to appropriate result
     }
 
     /**
@@ -69,43 +67,34 @@ public class DataRepository {
 
         Room roomMetadata = null;
 
-        try {
+        setupConn();
 
-            setupConn();
-
-            if (sqlConnection == null || sqlConnection.isClosed()) {
-                System.out.println("no connection to database");
-                return null;
-            }
-
-            String stmtStr = "select * from Rooms where email = ?";
-            PreparedStatement stmt = sqlConnection.prepareStatement(stmtStr);
-            stmt.setString(1, email);
-            stmt.execute();
-            ResultSet rs = stmt.getResultSet();
-            rs.beforeFirst();
-
-            if (rs.next()) {
-                roomMetadata = new Room();
-                roomMetadata.setCountry(rs.getString(rs.findColumn("Country")));
-                roomMetadata.setMetroarea(rs.getString(rs.findColumn("Metro")));
-                roomMetadata.setBuilding(rs.getString(rs.findColumn("Building")));
-                roomMetadata.setLatitude(Float.toString(rs.getFloat(rs.findColumn("Latitude"))));
-                roomMetadata.setLongitude(Float.toString(rs.getFloat(rs.findColumn("Longitude"))));
-                roomMetadata.setAddress(rs.getString(rs.findColumn("address")));
-                roomMetadata.setNavigationMap(rs.getString(rs.findColumn("navigation")));
-                roomMetadata.setCapacity(rs.getInt(rs.findColumn("Longitude")));
-                roomMetadata.setRoomPic(rs.getString(rs.findColumn("roomPic")));
-                roomMetadata.setState(rs.getString(rs.findColumn("state")));
-            }
-
-            closeConnection();
-
-        } catch (Exception e) {
-            // e.printStackTrace();
-            //ApiLogger.logger.log(Level.SEVERE, "Error getting rooms from database database", e);
-            throw e;
+        if (sqlConnection == null || sqlConnection.isClosed()) {
+            throw new SQLException("No connection to established to the database.");
         }
+
+        String stmtStr = "select * from Rooms where email = ?";
+        PreparedStatement stmt = sqlConnection.prepareStatement(stmtStr);
+        stmt.setString(1, email);
+        stmt.execute();
+        ResultSet rs = stmt.getResultSet();
+        rs.beforeFirst();
+
+        if (rs.next()) {
+            roomMetadata = new Room();
+            roomMetadata.setCountry(rs.getString(rs.findColumn("Country")));
+            roomMetadata.setMetroarea(rs.getString(rs.findColumn("Metro")));
+            roomMetadata.setBuilding(rs.getString(rs.findColumn("Building")));
+            roomMetadata.setLatitude(Float.toString(rs.getFloat(rs.findColumn("Latitude"))));
+            roomMetadata.setLongitude(Float.toString(rs.getFloat(rs.findColumn("Longitude"))));
+            roomMetadata.setAddress(rs.getString(rs.findColumn("address")));
+            roomMetadata.setNavigationMap(rs.getString(rs.findColumn("navigation")));
+            roomMetadata.setCapacity(rs.getInt(rs.findColumn("Longitude")));
+            roomMetadata.setRoomPic(rs.getString(rs.findColumn("roomPic")));
+            roomMetadata.setState(rs.getString(rs.findColumn("state")));
+        }
+
+        closeConnection();
 
         return roomMetadata;
     }
@@ -118,51 +107,42 @@ public class DataRepository {
      */ 
     public List<MetroBuildingList> retrieveSearchCriteria(String domain) throws Exception {
 
-        Map<String, MetroBuildingList> searchFields = null;
-        try {
+        setupConn();
 
-            setupConn();
-
-            if (sqlConnection == null || sqlConnection.isClosed()) {
-                System.out.println("no connection to database");
-                return null;
-            }
-
-            String stmtStr = "select email, name, Metroarea from Roomlist where domain = ?;";
-            PreparedStatement stmt = sqlConnection.prepareStatement(stmtStr);
-            stmt.setString(1, domain);
-            stmt.execute();
-            
-            ResultSet rs = stmt.getResultSet();
-            rs.beforeFirst();
-
-            searchFields = new HashMap();
-            
-            while (rs.next()) {                
-                
-                String buildingName = rs.getString(rs.findColumn("name"));
-                String metroName = rs.getString(rs.findColumn("Metroarea"));
-                String buildingEmail = rs.getString(rs.findColumn("email"));
-                
-                if (searchFields.get(metroName) == null) {
-                    MetroBuildingList newList = new MetroBuildingList();
-                    newList.setMetro(metroName);
-                    newList.setBuilding(buildingEmail, metroName);
-                    searchFields.put(metroName, newList);
-                } else {
-                    MetroBuildingList roomLists = searchFields.get(metroName);
-                    roomLists.setBuilding(buildingEmail, metroName);;
-                } 
-            }
-            
-            closeConnection();
-            
-            return new ArrayList(searchFields.values());
-
-        } catch (Exception e) {
-            // e.printStackTrace();
-            //ApiLogger.logger.log(Level.SEVERE, "Error getting rooms from database database", e);
-            throw e;
+        if (sqlConnection == null || sqlConnection.isClosed()) {
+            throw new SQLException("No connection to established to the database.");
         }
+
+        String stmtStr = "select email, name, Metroarea from Roomlist where domain = ?;";
+        PreparedStatement stmt = sqlConnection.prepareStatement(stmtStr);
+        stmt.setString(1, domain);
+        stmt.execute();
+        
+        ResultSet rs = stmt.getResultSet();
+        rs.beforeFirst();
+
+        Map<String, MetroBuildingList> searchFields = new HashMap();
+        
+        while (rs.next()) {                
+            
+            String buildingName = rs.getString(rs.findColumn("name"));
+            String metroName = rs.getString(rs.findColumn("Metroarea"));
+            String buildingEmail = rs.getString(rs.findColumn("email"));
+            
+            if (searchFields.get(metroName) == null) {
+                MetroBuildingList newList = new MetroBuildingList();
+                newList.setMetro(metroName);
+                newList.setRoomlist(buildingEmail, buildingName);
+                searchFields.put(metroName, newList);
+            } else {
+                MetroBuildingList roomLists = searchFields.get(metroName);
+                roomLists.setRoomlist(buildingEmail, metroName);;
+            } 
+        }
+        
+        closeConnection();
+        
+        return new ArrayList(searchFields.values());
+
     }
 }

@@ -15,16 +15,27 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 
 import microsoft.exchange.webservices.data.core.ExchangeService;
+import microsoft.exchange.webservices.data.core.enumeration.availability.AvailabilityData;
 import microsoft.exchange.webservices.data.core.exception.service.remote.ServiceRequestException;
 import microsoft.exchange.webservices.data.core.exception.service.remote.ServiceResponseException;
+import microsoft.exchange.webservices.data.core.response.AttendeeAvailability;
 import microsoft.exchange.webservices.data.core.service.item.Appointment;
+import microsoft.exchange.webservices.data.misc.availability.AttendeeInfo;
+import microsoft.exchange.webservices.data.misc.availability.GetUserAvailabilityResults;
+import microsoft.exchange.webservices.data.misc.availability.TimeWindow;
 import microsoft.exchange.webservices.data.property.complex.EmailAddress;
 import microsoft.exchange.webservices.data.property.complex.EmailAddressCollection;
 import microsoft.exchange.webservices.data.property.complex.MessageBody;
+import microsoft.exchange.webservices.data.property.complex.availability.CalendarEvent;
+
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 
 public class RoomsDao {
 
@@ -91,29 +102,18 @@ public class RoomsDao {
      * @throws Exception When the service fails to be created.
      */
     public List<EmailAddress> getRoomsList() throws ServiceRequestException,
-                    ServiceResponseException, ExchangeServiceException {
+                    ServiceResponseException, ExchangeServiceException,Exception {
 
         List<EmailAddress> names = new ArrayList<EmailAddress>();
 
-        try {
-            EmailAddressCollection c = service.getRoomLists();
-            for (EmailAddress e : c) {
+        EmailAddressCollection c = service.getRoomLists();
+        for (EmailAddress e : c) {
 
-                Collection<EmailAddress> rooms = service.getRooms(e);
+            Collection<EmailAddress> rooms = service.getRooms(e);
 
-                for (EmailAddress r : rooms) {
-                    System.out.println(r.toString());
-                    System.out.println(r.getAddress());
-                    System.out.println(r.getName());
-                    names.add(r);
-                }
+            for (EmailAddress r : rooms) {
+                names.add(r);
             }
-        } catch (ServiceRequestException e) {
-            throw e;
-        } catch (ServiceResponseException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new ExchangeServiceException(e);
         }
 
         return names;
@@ -133,39 +133,31 @@ public class RoomsDao {
         List<EmailAddress> rooms = null;
         List<Room> roomList = null;
 
-        try {
-            rooms = getRoomsList();
+        rooms = getRoomsList();
 
-            File file = new File("Roo.dat");
-            file.delete();
+        File file = new File("Roo.dat");
+        file.delete();
 
-            if (!file.exists()) {
-                roomList = new ArrayList<Room>();
+        if (!file.exists()) {
+            roomList = new ArrayList<Room>();
 
-                for (EmailAddress s : rooms) {
-                    Room room = new Room();
-                    room.setName(s.getName());
-                    room.setEmail(s.getAddress());
-                    retrieveMetadata(room);
-                    roomList.add(room);
-                }
-
-                // User user = new User(1, "Peter", "Teacher");
-
-                // userList.add(user);
-                saveRoomList(roomList);
-            } else {
-                FileInputStream fis = new FileInputStream(file);
-                ObjectInputStream ois = new ObjectInputStream(fis);
-                roomList = (List<Room>) ois.readObject();
-                ois.close();
+            for (EmailAddress s : rooms) {
+                Room room = new Room();
+                room.setName(s.getName());
+                room.setEmail(s.getAddress());
+                retrieveMetadata(room);
+                roomList.add(room);
             }
-        } catch (IOException e) {
-            throw e;
-        } catch (ClassNotFoundException e) {
-            throw e;
-        } catch (Exception e) {
-            throw e;
+
+            // User user = new User(1, "Peter", "Teacher");
+
+            // userList.add(user);
+            saveRoomList(roomList);
+        } else {
+            FileInputStream fis = new FileInputStream(file);
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            roomList = (List<Room>) ois.readObject();
+            ois.close();
         }
 
         return roomList;
@@ -188,9 +180,10 @@ public class RoomsDao {
 
     /**
      * Fetches a room metadata.
-     * @param room The room of interest, to be filled in.
+     * @param room room The room of interest, to be filled in.
+     * @throws Exception throws an exception
      */
-    public static void retrieveMetadata(Room room) throws Exception {
+    public void retrieveMetadata(Room room) throws Exception {
         DataRepository db = new DataRepository();
 
         Room metadata = db.retrieveRoomMetadata(room.getEmail());
@@ -207,8 +200,6 @@ public class RoomsDao {
             room.setState(metadata.getState());
             room.setRoomPic(metadata.getRoomPic());
         }
-
-
     }
     
     /**
@@ -232,62 +223,109 @@ public class RoomsDao {
      * @throws Exception On an unexpected error.
      */ 
     private List<EmailAddress> getBuildingRoomlist(String email) throws ServiceRequestException, 
-                                               ServiceResponseException, ExchangeServiceException {
+                                               ServiceResponseException, ExchangeServiceException,
+                                                                           Exception {
 
         List<EmailAddress> names = null;
 
-        try {
-            EmailAddressCollection c = service.getRoomLists();
-            for (EmailAddress e : c) {
-                if (e.getAddress().equalsIgnoreCase(email)) {
-                    
-                    names = new ArrayList<EmailAddress>();
-                    Collection<EmailAddress> rooms = service.getRooms(e);
-           
-                    for (EmailAddress r : rooms) {
-                        names.add(r);
-                    }
+        EmailAddressCollection c = service.getRoomLists();
+        for (EmailAddress e : c) {
+            if (e.getAddress().equalsIgnoreCase(email)) {
+                
+                names = new ArrayList<EmailAddress>();
+                Collection<EmailAddress> rooms = service.getRooms(e);
+       
+                for (EmailAddress r : rooms) {
+                    names.add(r);
                 }
             }
-        } catch (ServiceRequestException e) {
-            throw e;
-        } catch (ServiceResponseException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new ExchangeServiceException(e);
         }
+
         return names;
     }
     
     /**
      * Gets all rooms at the organization.
      * 
-     * @return A list of rooms.
+     * @param roomlistEmail the email of the room list to retrieve
+     * @param start the start time for the search window
+     * @param end the end time for the search window
+     * @return A list of rooms
+     * @throws Exception throws an exception 
      */
-    public List<Room> getBuildingRooms(String buildingEmail) throws Exception {
+    public List<Room> getBuildingRooms(String roomlistEmail, String start, String end) throws Exception {
         
-        List<EmailAddress> rooms = null;
-        try {
-            rooms = getBuildingRoomlist(buildingEmail);
-        } catch (Exception ex) {
-            throw ex;
+        DateTime startTime = null;
+        DateTime endTime = null;
+        
+        DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
+ 
+        if (start.isEmpty()) {
+            startTime = DateTime.now();
+            endTime = DateTime.now().plusDays(7);
+        } else {
+            startTime = fmt.parseDateTime(start);
+            fmt.parseDateTime(end);
         }
+        
+        List<EmailAddress> rooms = getBuildingRoomlist(roomlistEmail);
+        List<AttendeeInfo> attendeeInfo = new ArrayList();
 
-        List<Room> roomList = null;
-        try {
-            roomList = new ArrayList<Room>();
-            for (EmailAddress s : rooms) {
-                Room room = new Room();
-                room.setName(s.getName());
-                room.setEmail(s.getAddress());
-                retrieveMetadata(room);
-                roomList.add(room);
-            }
-        } catch (IOException e) {
-            throw e;
-        } catch (ClassNotFoundException e) {
-            throw e;
+        List<Room> roomList = new ArrayList<Room>();
+        for (EmailAddress s : rooms) {
+            Room room = new Room();
+            room.setName(s.getName());
+            room.setEmail(s.getAddress());
+            retrieveMetadata(room);
+            roomList.add(room);
+            attendeeInfo.add(new AttendeeInfo(s.getAddress()));
         }
+        
+        List<AttendeeAvailability> result = getFreeBusyBlocks(attendeeInfo,
+                        startTime, endTime);
+        System.out.println(result.size());
+        Iterator iter = result.iterator();
+        if (result.size() == roomList.size()) {
+            for (Room room : roomList) {
+                AttendeeAvailability availability = (AttendeeAvailability) iter.next();
+                
+                for (CalendarEvent evnt :availability.getCalendarEvents()) {
+                    room.addFreeBusyTime(new FreeBusySlot(
+                                    fmt.print(new DateTime(evnt.getStartTime())),
+                                    fmt.print(new DateTime(evnt.getEndTime())),
+                                    evnt.getFreeBusyStatus().name()));
+                }
+            } 
+        } else {
+            throw new Exception("Unable to retrieve all room calendars");
+        }  
+        
         return roomList;
+    }
+    
+    /**
+     * Get free/busy information for rooms.  
+     * @param meetingAttendees A list of attendees to get free/busy blocks for
+     * @param startTime DateTime object of representing the start time 
+     * @param endTime DateTime object of representing the end time
+     * @return List of Attendee Availability objects
+     * @throws Exception throws an exception
+     */
+    private List<AttendeeAvailability> getFreeBusyBlocks(List<AttendeeInfo> meetingAttendees, 
+                    DateTime startTime, DateTime endTime) throws Exception {
+        
+        List<AttendeeAvailability> freeBusyInfo = new ArrayList();
+        
+        TimeWindow timeFrame = new TimeWindow();
+        timeFrame.setStartTime(startTime.toDate());
+        timeFrame.setEndTime(endTime.toDate());
+        GetUserAvailabilityResults response = 
+                        service.getUserAvailability(meetingAttendees, timeFrame, AvailabilityData.FreeBusy);
+        
+        for (AttendeeAvailability timeSlot:response.getAttendeesAvailability()) {
+            freeBusyInfo.add(timeSlot);
+        }
+        
+        return freeBusyInfo;
     }
 }

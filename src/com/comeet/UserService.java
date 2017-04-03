@@ -224,7 +224,7 @@ public class UserService {
         try (ExchangeService service = serviceFactory.create()) {
 
             RoomsDao roomsDao = new RoomsDao(service);
-            return roomsDao.getBuildingRooms(buildingEmail);
+            return roomsDao.getBuildingRooms(buildingEmail,start,end);
         } catch (Exception e) {
             ApiLogger.logger.log(Level.SEVERE, "Error getting rooms for a building", e);
             throw e;
