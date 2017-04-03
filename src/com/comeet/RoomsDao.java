@@ -281,12 +281,22 @@ public class RoomsDao {
             attendeeInfo.add(new AttendeeInfo(s.getAddress()));
         }
         
+        populateAttendeeAvailability(roomList,attendeeInfo, startTime, endTime);
+        
+        return roomList;
+    }
+    
+    
+    private void populateAttendeeAvailability(List<Room> rooms, List<AttendeeInfo> attendeeInfo, 
+                    DateTime startTime, DateTime endTime) throws Exception {
+        
+        DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
         List<AttendeeAvailability> result = getFreeBusyBlocks(attendeeInfo,
                         startTime, endTime);
-        System.out.println(result.size());
+
         Iterator iter = result.iterator();
-        if (result.size() == roomList.size()) {
-            for (Room room : roomList) {
+        if (result.size() == rooms.size()) {
+            for (Room room : rooms) {
                 AttendeeAvailability availability = (AttendeeAvailability) iter.next();
                 
                 for (CalendarEvent evnt :availability.getCalendarEvents()) {
@@ -299,8 +309,6 @@ public class RoomsDao {
         } else {
             throw new Exception("Unable to retrieve all room calendars");
         }  
-        
-        return roomList;
     }
     
     /**

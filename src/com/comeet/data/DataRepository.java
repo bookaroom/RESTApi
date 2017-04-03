@@ -48,14 +48,15 @@ public class DataRepository {
         sqlConnection.close();
     }
 
-    private void getRooms() throws Exception {
+    //Redundant method. Commenting it out until further confirmation
+    /*private void getRooms() throws Exception {
 
         setupConn();
 
         Statement stmt = sqlConnection.createStatement();
         ResultSet rs = stmt.executeQuery("select * from Rooms");
         // TODO - process result set to appropriate result
-    }
+    }*/
 
     /**
      * Retrieves room metadata from the comeet database.
