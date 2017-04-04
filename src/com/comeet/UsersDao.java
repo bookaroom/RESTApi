@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 
 import microsoft.exchange.webservices.data.core.ExchangeService;
@@ -57,7 +58,6 @@ public class UsersDao {
         ac = appt.getRequiredAttendees();
         for (Attendee a : ac) {
             myAttendees.add(a.getAddress());
-
         }
 
         return myAttendees;
@@ -74,8 +74,6 @@ public class UsersDao {
 
     public List<Person> attendees(Meeting m, Appointment appt, AttendeeCollection ac) throws Exception {
         List<Attendee> list = ac.getItems();
-
-        // System.out.println("size: " + ac.getCount() + "\n");
 
         List<Person> people = new ArrayList<Person>();
 
@@ -94,7 +92,6 @@ public class UsersDao {
                     throws Exception {
 
         AttendeeCollection ac = appt.getRequiredAttendees();
-
         m.setRequiredattendees(attendees(m, appt, ac));
         
     }
@@ -104,34 +101,29 @@ public class UsersDao {
         AttendeeCollection ac = appt.getOptionalAttendees();
         m.setOptionaldattendees(attendees(m, appt, ac));
     }
-
-    public Map<String, String> roomMap() throws Exception {
-        Map<String, String> roomMap = new HashMap<String, String>();
-        EmailAddressCollection roomLists = service.getRoomLists();
-        List<EmailAddress> roomListsTwo = roomLists.getItems();
-        for (EmailAddress e : roomListsTwo) {
-            Collection<EmailAddress> col = service.getRooms(e);
-
-            for (EmailAddress add : col) {
-                roomMap.put(add.getName(), add.getAddress());
-            }
-            
-        }
-        
-        return roomMap;
-    }
-
     
-    public Room populateRoomData(Map<String, String> roomMap, Appointment appt)
+    public Room populateRoomData(List<Person> attendees, Appointment appt)
                     throws ServiceLocalException, Exception {
 
         Room theRoom = new Room();
         RoomsDao roomDao = new RoomsDao(null);
-        String roomEmail = roomMap.get(appt.getLocation());
-        theRoom.setEmail(roomEmail);
-        roomDao.retrieveMetadata(theRoom);
-        theRoom.setName(appt.getLocation());
+        
+        String email = "";
+        boolean found = false;
+        for (Person p: attendees) {
+            if (p.getName().equals(appt.getLocation())) {
+                email = p.getEmail();
+                found = true;
+            }
+        }
 
+        theRoom.setEmail(email);
+        theRoom.setName(appt.getLocation());
+        
+        if (found) {
+            roomDao.retrieveMetadata(theRoom);        
+        }
+        
         return theRoom;
     }
 
@@ -167,7 +159,6 @@ public class UsersDao {
         Date startDate = formatter.parse(start);// "2010-05-01 12:00:00");
         Date endDate = formatter.parse(end); // "2010-05-30 13:00:00");
 
-
         CalendarFolder cf = CalendarFolder.bind(service, WellKnownFolderName.Calendar);
         FindItemsResults<Appointment> findResults =
                         cf.findAppointments(new CalendarView(startDate, endDate));
@@ -186,30 +177,24 @@ public class UsersDao {
     public List<Meeting> getUserMeetings(String start, String end) throws Exception {
 
         List<Meeting> meetings = new ArrayList<Meeting>();
-        Map<String, String> roomMap = roomMap();
-
         List<Appointment> results = findAppointments(start, end);
 
         for (Appointment appt : results) {
             if (appt != null) {
                 Meeting m = new Meeting();
-
                 m.setStart(appt.getStart());
                 m.setEnd(appt.getEnd());
                 m.setBody(appointmentBody(appt));
                 m.setSubject(appt.getSubject());
                 m.setLocation(appt.getLocation());
                 m.setMeetingcreator(meetingCreator(appt));
-                m.setRoom(populateRoomData(roomMap, appt));
-
                 Appointment attAppt = Appointment.bind(service, appt.getId(),
                                 new PropertySet(BasePropertySet.FirstClassProperties));
                 requiredAttendees(m, attAppt);
                 optionalAttendees(m, attAppt);
-
+                m.setRoom(populateRoomData(m.getRequiredattendees(), appt));
                 meetings.add(m);
             }
-
         }
 
         return meetings;

@@ -8,6 +8,7 @@ import com.comeet.exchange.ExchangeServiceFactoryImpl;
 import com.comeet.utilities.ApiLogger;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
@@ -156,8 +157,12 @@ public class UserService {
 
             // Each call should define new instance of Service and DAO object
             try (ExchangeService service = serviceFactory.create()) {
+
+                List<String> recips = Arrays.asList(requiredRecipients.split("\\s*,\\s*"));
+                recips = new ArrayList<String>(recips);
+                recips.add(roomRecipient + "");
+
                 RoomsDao roomsDao = new RoomsDao(service);
-                List<String> recips = Arrays.asList(requiredRecipients.split(RECIPIENT_LIST_REGEX));
                 return roomsDao.makeAppointment(start, end, subject, body, recips);
             }
         } catch (AuthContextException e) {
