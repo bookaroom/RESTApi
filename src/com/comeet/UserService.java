@@ -93,6 +93,7 @@ public class UserService {
      */
     @GET
     @Path("/{orgDomain}/users/{user}/meetings")
+    @Produces("application/json")
     public List<Meeting> getUserMeetings(@Context HttpHeaders headers,
                     @PathParam("orgDomain") String orgDomain, @PathParam("user") String user,
                     @DefaultValue("") @QueryParam("start") String start,
