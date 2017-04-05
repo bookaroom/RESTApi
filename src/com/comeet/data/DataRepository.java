@@ -85,7 +85,6 @@ public class DataRepository {
             roomMetadata = new Room();
             roomMetadata.setCountry(rs.getString(rs.findColumn("Country")));
             roomMetadata.setMetroarea(rs.getString(rs.findColumn("Metro")));
-            roomMetadata.setBuilding(rs.getString(rs.findColumn("Building")));
             roomMetadata.setLatitude(Float.toString(rs.getFloat(rs.findColumn("Latitude"))));
             roomMetadata.setLongitude(Float.toString(rs.getFloat(rs.findColumn("Longitude"))));
             roomMetadata.setAddress(rs.getString(rs.findColumn("address")));
