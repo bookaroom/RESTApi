@@ -2,7 +2,9 @@
 package com.comeet;
 
 import com.comeet.data.DataRepository;
+import com.comeet.exchange.ExchangeResourceException;
 import com.comeet.exchange.ExchangeServiceException;
+import com.comeet.utilities.ApiLogger;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,6 +13,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,7 +21,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
-
 import microsoft.exchange.webservices.data.core.ExchangeService;
 import microsoft.exchange.webservices.data.core.PropertySet;
 import microsoft.exchange.webservices.data.core.enumeration.availability.AvailabilityData;
@@ -48,6 +50,8 @@ import org.joda.time.format.ISODateTimeFormat;
 
 public class RoomsDao {
 
+    private static final String CLASS_NAME = RoomsDao.class.getName();
+
     /**
      * The Exchange service is injected via the constructor.
      */
@@ -76,17 +80,19 @@ public class RoomsDao {
         NameResolution nr = i.next();
         return nr.getMailbox().getAddress();
     }
-    
+
     /**
      * Sets the location name of the appointment
-     * @param appointment  - appointment
+     * 
+     * @param appointment - appointment
      * @param roomRecipient - room
      * @throws Exception //TODO: For unknown reasons.
      */
-    public void setLocationName(Appointment appointment, String roomRecipient) throws ServiceLocalException, Exception {
-        
+    public void setLocationName(Appointment appointment, String roomRecipient)
+                    throws ServiceLocalException, Exception {
+
         String name = "";
-        //System.out.println(appointment.getId() + " id\n");
+        // System.out.println(appointment.getId() + " id\n");
         Appointment attAppt = Appointment.bind(service, appointment.getId(),
                         new PropertySet(BasePropertySet.FirstClassProperties));
         AttendeeCollection ac = attAppt.getRequiredAttendees();
@@ -96,10 +102,10 @@ public class RoomsDao {
                 name = a.getName();
             }
         }
-        
+
         appointment.setLocation(name);
         appointment.update(ConflictResolutionMode.AlwaysOverwrite);
-        
+
     }
 
     /**
@@ -115,7 +121,8 @@ public class RoomsDao {
      * @throws Exception //TODO: For unknown reasons.
      */
     public List<Meeting> makeAppointment(String start, String end, String subject, String body,
-                    List<String> recips, String roomRecipient) throws ServiceResponseException, Exception {
+                    List<String> recips, String roomRecipient)
+                    throws ServiceResponseException, Exception {
 
         Appointment appointment = new Appointment(service);
         appointment.setSubject(subject);
@@ -127,20 +134,19 @@ public class RoomsDao {
         Date endDate = formatter.parse(end); // "2017-05-23|6:00:00");
         appointment.setStart(startDate);
         appointment.setEnd(endDate);
-        
+
         appointment.setRecurrence(null);
 
         for (String s : recips) {
             appointment.getRequiredAttendees().add(s);
         }
         appointment.getRequiredAttendees().add(roomRecipient);
-        
+
         appointment.save();
         setLocationName(appointment, roomRecipient);
-        
+
         return new ArrayList<Meeting>();
     }
-
 
 
 
@@ -151,7 +157,7 @@ public class RoomsDao {
      * @throws Exception When the service fails to be created.
      */
     public List<EmailAddress> getRoomsList() throws ServiceRequestException,
-                    ServiceResponseException, ExchangeServiceException,Exception {
+                    ServiceResponseException, ExchangeServiceException, Exception {
 
         List<EmailAddress> names = new ArrayList<EmailAddress>();
 
@@ -194,13 +200,10 @@ public class RoomsDao {
                 Room room = new Room();
                 room.setName(s.getName());
                 room.setEmail(s.getAddress());
-                retrieveMetadata(room);
+                populateMetadata(room);
                 roomList.add(room);
             }
 
-            // User user = new User(1, "Peter", "Teacher");
-
-            // userList.add(user);
             saveRoomList(roomList);
         } else {
             FileInputStream fis = new FileInputStream(file);
@@ -228,71 +231,74 @@ public class RoomsDao {
     }
 
     /**
-     * Fetches a room metadata.
+     * Fetches a room's metadata.
+     * 
      * @param room room The room of interest, to be filled in.
-     * @throws Exception throws an exception
      */
-    public void retrieveMetadata(Room room) throws Exception {
+    public void populateMetadata(Room room) {
         DataRepository db = new DataRepository();
 
-        Room metadata = db.retrieveRoomMetadata(room.getEmail());
-
-        if (metadata != null) {
-            room.setCapacity(metadata.getCapacity());
-            room.setCountry(metadata.getCountry());
-            room.setBuilding(metadata.getBuilding());
-            room.setNavigationMap(metadata.getNavigationMap());
-            room.setLatitude(metadata.getLatitude());
-            room.setCapacity(metadata.getCapacity());
-            room.setLongitude(metadata.getLongitude());
-            room.setMetroarea(metadata.getMetroarea());
-            room.setState(metadata.getState());
-            room.setRoomPic(metadata.getRoomPic());
+        try {
+            Room metadata = db.retrieveRoomMetadata(room.getEmail());
+    
+            if (metadata != null) {
+                room.setCapacity(metadata.getCapacity());
+                room.setCountry(metadata.getCountry());
+                room.setBuilding(metadata.getBuilding());
+                room.setNavigationMap(metadata.getNavigationMap());
+                room.setLatitude(metadata.getLatitude());
+                room.setCapacity(metadata.getCapacity());
+                room.setLongitude(metadata.getLongitude());
+                room.setMetroarea(metadata.getMetroarea());
+                room.setState(metadata.getState());
+                room.setRoomPic(metadata.getRoomPic());
+            }
+        } catch (SQLException sqle) {
+            // Log the problem and continue gracefully.
+            String err = String.format("Failed to retrieve metadata for room {0}", room.getEmail());
+            ApiLogger.logger.warning(err);
         }
     }
-    
+
     /**
      * Implementing method to get the search criteria for a given domain
+     * 
      * @param domain domain of organization to search for
      * @return The list of metro areas and their room list names
      * @throws Exception On an unexpected error.
-     */ 
+     */
     public List<MetroBuildingList> getCriteria(String domain) throws Exception {
         DataRepository db = new DataRepository();
         List<MetroBuildingList> result = db.retrieveSearchCriteria(domain);
-        
+
         return result;
     }
-    
-    
+
+
     /**
-     * retrieve the rooms in a selected building from exchange
-     * @param email email address of the building list to retrieve
-     * @return The list of metro areas and their room list names
-     * @throws Exception On an unexpected error.
-     */ 
-    private List<EmailAddress> getBuildingRoomlist(String email) throws ServiceRequestException, 
-                                               ServiceResponseException, ExchangeServiceException,
-                                                                           Exception {
+     * Retrieve the rooms in a selected building from exchange.
+     * 
+     * @param email Email address of the building list to retrieve.
+     * @return A list of rooms' email addresses.
+     * @throws ExchangeResourceException When retrieving the resource from exchange fails.
+     */
+    private List<EmailAddress> getRoomsFromRoomlist(String email) throws ExchangeResourceException {
+        final String methodName = "getRoomsFromRoomlist";
+        ApiLogger.logger.entering(CLASS_NAME, methodName);
 
-        List<EmailAddress> names = null;
+        EmailAddress roomEmail = new EmailAddress(email);
 
-        EmailAddressCollection c = service.getRoomLists();
-        for (EmailAddress e : c) {
-            if (e.getAddress().equalsIgnoreCase(email)) {
-                
-                names = new ArrayList<EmailAddress>();
-                Collection<EmailAddress> rooms = service.getRooms(e);
-       
-                for (EmailAddress r : rooms) {
-                    names.add(r);
-                }
-            }
+        try {
+            Collection<EmailAddress> rooms = service.getRooms(roomEmail);
+            ApiLogger.logger.exiting(CLASS_NAME, methodName, rooms);
+            return new ArrayList<>(rooms);
+        } catch (Exception e) {
+            String err = String.format("Failed to get rooms from roomlist {0}", email);
+            ApiLogger.logger.severe(err);
+            throw new ExchangeResourceException(err, e);
         }
-
-        return names;
     }
-    
+
     /**
      * Gets all rooms at the organization.
      * 
@@ -300,15 +306,16 @@ public class RoomsDao {
      * @param start the start time for the search window
      * @param end the end time for the search window
      * @return A list of rooms
-     * @throws Exception throws an exception 
+     * @throws Exception throws an exception
      */
-    public List<Room> getBuildingRooms(String roomlistEmail, String start, String end) throws Exception {
-        
+    public List<Room> getBuildingRooms(String roomlistEmail, String start, String end)
+                    throws ExchangeResourceException {
+
         DateTime startTime = null;
         DateTime endTime = null;
-        
+
         DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
- 
+
         if (start.isEmpty()) {
             startTime = DateTime.now();
             endTime = DateTime.now().plusDays(7);
@@ -316,73 +323,68 @@ public class RoomsDao {
             startTime = fmt.parseDateTime(start);
             fmt.parseDateTime(end);
         }
-        
-        List<EmailAddress> rooms = getBuildingRoomlist(roomlistEmail);
-        List<AttendeeInfo> attendeeInfo = new ArrayList();
 
-        List<Room> roomList = new ArrayList<Room>();
-        for (EmailAddress s : rooms) {
+        List<EmailAddress> roomEmails = getRoomsFromRoomlist(roomlistEmail);
+
+        List<Room> rooms = new ArrayList<Room>();
+
+        for (EmailAddress contact : roomEmails) {
             Room room = new Room();
-            room.setName(s.getName());
-            room.setEmail(s.getAddress());
-            retrieveMetadata(room);
-            roomList.add(room);
-            attendeeInfo.add(new AttendeeInfo(s.getAddress()));
+            room.setName(contact.getName());
+            room.setEmail(contact.getAddress());
+            populateMetadata(room);
+            rooms.add(room);
+        }
+
+        TimeWindow duration = new TimeWindow(startTime.toDate(), endTime.toDate());
+        populateAvailability(rooms, duration);
+
+        return rooms;
+    }
+
+
+    /**
+     * Populates room availability.
+     * @param rooms A list of rooms to populate.
+     * @param duration The duration to populate.
+     * @throws ExchangeResourceException If the operation does not complete.  Room calendars may be partially populated.
+     */
+    private void populateAvailability(List<Room> rooms, TimeWindow duration) throws ExchangeResourceException {
+
+        List<AttendeeInfo> attendees = new ArrayList<>();
+        for (Room room : rooms) {
+            attendees.add(new AttendeeInfo(room.getEmail()));
         }
         
-        populateAttendeeAvailability(roomList,attendeeInfo, startTime, endTime);
-        
-        return roomList;
-    }
-    
-    
-    private void populateAttendeeAvailability(List<Room> rooms, List<AttendeeInfo> attendeeInfo, 
-                    DateTime startTime, DateTime endTime) throws Exception {
+        GetUserAvailabilityResults response;
+        try {
+            response = service.getUserAvailability(attendees, duration, AvailabilityData.FreeBusy);
+        } catch (Exception e) {
+            String err = String.format("Failed to retrieve user {0} availability at times {1}", attendees, duration);
+            ApiLogger.logger.warning(err);
+            throw new ExchangeResourceException(err, e);
+        }
         
         DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
-        List<AttendeeAvailability> result = getFreeBusyBlocks(attendeeInfo,
-                        startTime, endTime);
-
-        Iterator iter = result.iterator();
-        if (result.size() == rooms.size()) {
-            for (Room room : rooms) {
-                AttendeeAvailability availability = (AttendeeAvailability) iter.next();
-                
-                for (CalendarEvent evnt :availability.getCalendarEvents()) {
-                    room.addFreeBusyTime(new FreeBusySlot(
-                                    fmt.print(new DateTime(evnt.getStartTime())),
-                                    fmt.print(new DateTime(evnt.getEndTime())),
-                                    evnt.getFreeBusyStatus().name()));
-                }
-            } 
-        } else {
-            throw new Exception("Unable to retrieve all room calendars");
-        }  
-    }
-    
-    /**
-     * Get free/busy information for rooms.  
-     * @param meetingAttendees A list of attendees to get free/busy blocks for
-     * @param startTime DateTime object of representing the start time 
-     * @param endTime DateTime object of representing the end time
-     * @return List of Attendee Availability objects
-     * @throws Exception throws an exception
-     */
-    private List<AttendeeAvailability> getFreeBusyBlocks(List<AttendeeInfo> meetingAttendees, 
-                    DateTime startTime, DateTime endTime) throws Exception {
         
-        List<AttendeeAvailability> freeBusyInfo = new ArrayList();
-        
-        TimeWindow timeFrame = new TimeWindow();
-        timeFrame.setStartTime(startTime.toDate());
-        timeFrame.setEndTime(endTime.toDate());
-        GetUserAvailabilityResults response = 
-                        service.getUserAvailability(meetingAttendees, timeFrame, AvailabilityData.FreeBusy);
-        
-        for (AttendeeAvailability timeSlot:response.getAttendeesAvailability()) {
-            freeBusyInfo.add(timeSlot);
+        // From https://msdn.microsoft.com/en-us/library/aa564001(v=exchg.150).aspx:
+        // The availability information for each user appears in a unique FreeBusyResponse element.
+        // The order of users in the GetUserAvailability operation request determines the order of availability data for each user in the response.
+        Iterator<Room> roomIterator = rooms.iterator(); 
+        for (AttendeeAvailability attendeeCalendar : response.getAttendeesAvailability()) {
+            
+            if (!roomIterator.hasNext()) {
+                throw new ExchangeResourceException("Availability result does not match request: Too many attendeeCalendars!");
+            }
+            
+            Room room = roomIterator.next();
+            for (CalendarEvent evnt : attendeeCalendar.getCalendarEvents()) {
+                room.addFreeBusyTime(
+                            // TODO: Are these times pre-biased for timezones?
+                            new FreeBusySlot(fmt.print(new DateTime(evnt.getStartTime())),
+                                            fmt.print(new DateTime(evnt.getEndTime())),
+                                            evnt.getFreeBusyStatus().name()));
+            }
         }
-        
-        return freeBusyInfo;
     }
 }

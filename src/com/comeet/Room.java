@@ -25,7 +25,7 @@ public class Room implements Serializable {
     private List<FreeBusySlot> freebusy;
 
     public Room() {
-        freebusy = new ArrayList();
+        freebusy = new ArrayList<>();
     }
 
     public String getName() {
@@ -37,19 +37,31 @@ public class Room implements Serializable {
         this.name = name;
     }
 
+    /**
+     * Smtp email address.
+     */
     public String getEmail() {
         return email;
     }
 
+    /**
+     * Physical address.
+     */
     @XmlElement
     public void setEmail(String email) {
         this.email = email;
     }
 
+    /**
+     * Physical address.
+     */
     public String getAddress() {
         return address;
     }
 
+    /**
+     * Physical address.
+     */
     @XmlElement
     public void setAddress(String email) {
         this.address = email;

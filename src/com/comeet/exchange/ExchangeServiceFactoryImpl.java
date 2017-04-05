@@ -61,7 +61,7 @@ public class ExchangeServiceFactoryImpl implements ExchangeServiceFactory {
             throw new ExchangeClientException("Null AuthContext");
         }
 
-        ExchangeCredentials creds = null;
+        ExchangeCredentials creds;
         
         // Note: Some work could be done to support other authentication types.
         String token = authContext.getBearerToken();
