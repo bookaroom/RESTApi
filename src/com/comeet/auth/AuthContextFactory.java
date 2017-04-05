@@ -7,15 +7,15 @@ import javax.ws.rs.core.HttpHeaders;
 
 public class AuthContextFactory {
 
-    private static final String AUTHORIZATION_HEADER_NAME = "Authorization";
+    protected static final String AUTHORIZATION_HEADER_NAME = "Authorization";
 
     // Bearer token format defined in https://tools.ietf.org/html/rfc6750#section-2.1
-    private static final String BEARER_TOKEN_PREAMBLE = "Bearer ";
-    private static final String BEARER_VALUE_REGEX = "^[-._~+/A-Za-z0-9]+=*$";
+    protected static final String BEARER_TOKEN_PREAMBLE = "Bearer ";
+    protected static final String BEARER_VALUE_REGEX = "^[-._~+/A-Za-z0-9]+=*$";
 
     // Basic credential format defined in http://www.ietf.org/rfc/rfc2617.txt
-    private static final String BASIC_AUTH_PREAMBLE = "Basic ";
-    private static final String BASIC_DECODED_REGEX = "^[^\\:]+\\:.*$";
+    protected static final String BASIC_AUTH_PREAMBLE = "Basic ";
+    protected static final String BASIC_DECODED_REGEX = "^[^\\:]+\\:.*$";
 
     /**
      * Builds an authentication context from HTTP headers.
