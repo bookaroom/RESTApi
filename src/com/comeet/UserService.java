@@ -7,7 +7,6 @@ import com.comeet.exchange.ExchangeServiceFactory;
 import com.comeet.exchange.ExchangeServiceFactoryImpl;
 import com.comeet.utilities.ApiLogger;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
@@ -150,7 +149,7 @@ public class UserService {
                     @DefaultValue("") @FormParam("required") String requiredRecipients,
                     @DefaultValue("") @FormParam("optional") String optionalRecipients)
                     throws ServiceResponseException, Exception {
-
+        
         try {
             serviceFactory.setAuthContext(authFactory.buildContext(headers));
 
@@ -187,11 +186,16 @@ public class UserService {
     @Produces("application/json")
     public List<MetroBuildingList> getMetroAreas(@Context HttpHeaders headers,
                     @PathParam("orgdomain") String orgdomain) throws Exception {
-
-        // get the search parameters from the database
+        
         try {
+            serviceFactory.setAuthContext(authFactory.buildContext(headers));
+            
             RoomsDao roomsDao = new RoomsDao(null);
             return roomsDao.getCriteria(orgdomain);
+        } catch (AuthContextException e) {
+            // TODO Use OAuth2 for real.
+            e.printStackTrace();
+            throw new WebApplicationException(buildBearerChallenge(e).build());
         } catch (Exception ex) {
             ApiLogger.logger.log(Level.SEVERE, "Error getting search criteria database", ex);
             throw ex;
@@ -218,17 +222,22 @@ public class UserService {
                     @PathParam("roomlist") String buildingEmail,
                     @DefaultValue("") @QueryParam("start") String start,
                     @DefaultValue("") @QueryParam("end") String end) throws Exception {
-        // each call should define new instance of DAO object
-
-        serviceFactory.setAuthContext(authFactory.buildContext(headers));
-
-        try (ExchangeService service = serviceFactory.create()) {
-
-            RoomsDao roomsDao = new RoomsDao(service);
-            return roomsDao.getBuildingRooms(buildingEmail,start,end);
-        } catch (Exception e) {
-            ApiLogger.logger.log(Level.SEVERE, "Error getting rooms for a building", e);
-            throw e;
+        
+        try {
+            serviceFactory.setAuthContext(authFactory.buildContext(headers));
+            
+            try (ExchangeService service = serviceFactory.create()) {
+    
+                RoomsDao roomsDao = new RoomsDao(service);
+                return roomsDao.getBuildingRooms(buildingEmail,start,end);
+            } catch (Exception e) {
+                ApiLogger.logger.log(Level.SEVERE, "Error getting rooms for a building", e);
+                throw e;
+            }
+        } catch (AuthContextException e) {
+            // TODO Use OAuth2 for real.
+            e.printStackTrace();
+            throw new WebApplicationException(buildBearerChallenge(e).build());
         }
     }
 
