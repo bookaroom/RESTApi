@@ -20,14 +20,23 @@ import java.util.List;
 import java.util.TimeZone;
 
 import microsoft.exchange.webservices.data.core.ExchangeService;
+import microsoft.exchange.webservices.data.core.PropertySet;
 import microsoft.exchange.webservices.data.core.enumeration.availability.AvailabilityData;
+import microsoft.exchange.webservices.data.core.enumeration.property.BasePropertySet;
+import microsoft.exchange.webservices.data.core.enumeration.search.ResolveNameSearchLocation;
+import microsoft.exchange.webservices.data.core.enumeration.service.ConflictResolutionMode;
+import microsoft.exchange.webservices.data.core.exception.service.local.ServiceLocalException;
 import microsoft.exchange.webservices.data.core.exception.service.remote.ServiceRequestException;
 import microsoft.exchange.webservices.data.core.exception.service.remote.ServiceResponseException;
 import microsoft.exchange.webservices.data.core.response.AttendeeAvailability;
 import microsoft.exchange.webservices.data.core.service.item.Appointment;
+import microsoft.exchange.webservices.data.misc.NameResolution;
+import microsoft.exchange.webservices.data.misc.NameResolutionCollection;
 import microsoft.exchange.webservices.data.misc.availability.AttendeeInfo;
 import microsoft.exchange.webservices.data.misc.availability.GetUserAvailabilityResults;
 import microsoft.exchange.webservices.data.misc.availability.TimeWindow;
+import microsoft.exchange.webservices.data.property.complex.Attendee;
+import microsoft.exchange.webservices.data.property.complex.AttendeeCollection;
 import microsoft.exchange.webservices.data.property.complex.EmailAddress;
 import microsoft.exchange.webservices.data.property.complex.EmailAddressCollection;
 import microsoft.exchange.webservices.data.property.complex.MessageBody;
@@ -54,6 +63,46 @@ public class RoomsDao {
     }
 
     /**
+     * Look up email address from encoded string
+     * 
+     * @param address - email address string
+     * @return actual email address
+     * @throws Exception //TODO: For unknown reasons.
+     */
+    public String lookUpEmailAddress(String address) throws Exception {
+        NameResolutionCollection nrc =
+                        service.resolveName(address, ResolveNameSearchLocation.DirectoryOnly, true);
+        Iterator<NameResolution> i = nrc.iterator();
+        NameResolution nr = i.next();
+        return nr.getMailbox().getAddress();
+    }
+    
+    /**
+     * Sets the location name of the appointment
+     * @param appointment  - appointment
+     * @param roomRecipient - room
+     * @throws Exception //TODO: For unknown reasons.
+     */
+    public void setLocationName(Appointment appointment, String roomRecipient) throws ServiceLocalException, Exception {
+        
+        String name = "";
+        //System.out.println(appointment.getId() + " id\n");
+        Appointment attAppt = Appointment.bind(service, appointment.getId(),
+                        new PropertySet(BasePropertySet.FirstClassProperties));
+        AttendeeCollection ac = attAppt.getRequiredAttendees();
+        for (Iterator<Attendee> iterator = ac.iterator(); iterator.hasNext();) {
+            Attendee a = iterator.next();
+            if (lookUpEmailAddress(a.getAddress()).equals(roomRecipient)) {
+                name = a.getName();
+            }
+        }
+        
+        appointment.setLocation(name);
+        appointment.update(ConflictResolutionMode.AlwaysOverwrite);
+        
+    }
+
+    /**
      * Creates an appointment.
      * 
      * @param start Appointment start time.
@@ -66,7 +115,7 @@ public class RoomsDao {
      * @throws Exception //TODO: For unknown reasons.
      */
     public List<Meeting> makeAppointment(String start, String end, String subject, String body,
-                    List<String> recips) throws ServiceResponseException, Exception {
+                    List<String> recips, String roomRecipient) throws ServiceResponseException, Exception {
 
         Appointment appointment = new Appointment(service);
         appointment.setSubject(subject);
@@ -74,24 +123,24 @@ public class RoomsDao {
 
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
         formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
-
         Date startDate = formatter.parse(start); // "2017-05-23|5:00:00");
         Date endDate = formatter.parse(end); // "2017-05-23|6:00:00");
         appointment.setStart(startDate);
         appointment.setEnd(endDate);
-
+        
         appointment.setRecurrence(null);
 
         for (String s : recips) {
             appointment.getRequiredAttendees().add(s);
         }
-
+        appointment.getRequiredAttendees().add(roomRecipient);
+        
         appointment.save();
-
-        List<Meeting> list = new ArrayList<Meeting>();
-
-        return list;
+        setLocationName(appointment, roomRecipient);
+        
+        return new ArrayList<Meeting>();
     }
+
 
 
 
