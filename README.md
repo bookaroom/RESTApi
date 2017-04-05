@@ -21,7 +21,19 @@
 	`start=2017-04-15T07:00:00-0400`\
 	`end=2017-04-15T20:00:00-0400`
 	- Example: `/organization/user/meetings?start=2017-03-25T22:00:00-0400&end=2017-03-30T12:00:00-0400`
+	
+4. Get organization metro areas
+	- GET `/{organization}/metros`
+	- Example: `/google.com/metros
  
+5. Get all the Meetings of a user
+	- GET `/{organization}/roomlists/{roomlist}/rooms"`
+	- Parameters: start, end
+	`start=2017-04-15T07:00:00-0400`\
+	`end=2017-04-15T20:00:00-0400`
+	- Example: `/google.com/roomlists/abc@test.com/rooms?start=2017-03-25T22:00:00-0400&end=2017-03-30T12:00:00-0400`
+ 	
+	Note: If the start parameter is empty, the next seven days are retrieved. If the start parameter is empty, the end parameter is 		ignored. 
 
 
 # Deployment Instructions
