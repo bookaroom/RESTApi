@@ -8,6 +8,8 @@ import com.comeet.exchange.ExchangeServiceFactoryImpl;
 import com.comeet.utilities.ApiLogger;
 
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
@@ -28,6 +30,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
+
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import microsoft.exchange.webservices.data.core.ExchangeService;
 import microsoft.exchange.webservices.data.core.exception.service.remote.ServiceResponseException;
@@ -225,7 +229,7 @@ public class UserService {
         try (ExchangeService service = serviceFactory.create()) {
 
             RoomsDao roomsDao = new RoomsDao(service);
-            return roomsDao.getBuildingRooms(buildingEmail,start,end);
+            return roomsDao.getBuildingRooms(StringEscapeUtils.unescapeHtml4(buildingEmail),start,end);
         } catch (Exception e) {
             ApiLogger.logger.log(Level.SEVERE, "Error getting rooms for a building", e);
             throw e;
