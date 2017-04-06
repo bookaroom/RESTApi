@@ -37,7 +37,7 @@ public class UserService {
      * Implementing method for GET /user/meetings
      * <p>
      * Example URL: 
-     * http://localhost:8080/JavaApplication/user/meetings?start=2017-03-25*12:00:00&end=2017-06-25*12:00:00
+     * http://localhost:8080/JavaApplication/user/meetings?start=2017-03-25T22:00:00-0400&end=2017-03-30T12:00:00-0400
      * </p>
      * @param start Start of query range.
      * @param end End of query range.

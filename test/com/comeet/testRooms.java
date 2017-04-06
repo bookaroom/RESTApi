@@ -1,29 +1,31 @@
 package com.comeet;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.Test;
 
-import net.sf.json.JSONObject;
+
+
 
 
 public class testRooms {
     
     private final String USER_AGENT = "Mozilla/5.0";
-    @Test
-    public void testTest() {
-        
-        assertEquals(1,1);
-    }
+    private int statusCode = 0;
+    private List<Room> rooms = new ArrayList<Room>();
+   
+
     
-    @Test 
-    public void test_getRooms() {
+    public void getRoomsMethodInfo() {
         
  
             String url = "http://localhost:8080/JavaApplication/rooms";
@@ -40,6 +42,7 @@ public class testRooms {
                 con.setRequestProperty("User-Agent", USER_AGENT);
                       
                 responseCode = con.getResponseCode();
+                statusCode = responseCode;
                 
                 System.out.println("Response Code : " + responseCode);
                 BufferedReader in = null;
@@ -54,25 +57,80 @@ public class testRooms {
                     response.append(inputLine);
                 }
 
-      
-                in.close();
-               
+               //
+                System.out.println(response);
+                String modified = "{ rooms: " + response.toString() + "}";
+                System.out.println(modified);             
+                
+                JSONObject ob = new JSONObject(modified);
+                JSONArray data = ob.getJSONArray("rooms");
+                List<Room> roomsArray = new ArrayList<Room>();
+                for(int i = 0; i < data.length(); i++)
+                {
+                
+                    Room r= new Room();
+                    r.setName((String) data.getJSONObject(i).get("name"));
+                    r.setEmail((String) data.getJSONObject(i).get("email"));
+                    r.setAddress((String) data.getJSONObject(i).get("address"));
+                    r.setCountry((String) data.getJSONObject(i).get("country"));
+                    r.setState((String) data.getJSONObject(i).get("state"));
+                    r.setMetroarea((String) data.getJSONObject(i).get("metroarea"));
+                    r.setLatitude((String) data.getJSONObject(i).get("latitude"));
+                    r.setLongitude((String) data.getJSONObject(i).get("longitude"));
+                    r.setNavigationMap((String) data.getJSONObject(i).get("navigationMap"));
+                    r.setBuilding((String) data.getJSONObject(i).get("building"));
+                    r.setCapacity((Integer) data.getJSONObject(i).get("capacity"));
+                    r.setRoomPic((String) data.getJSONObject(i).get("roomPic"));
+                    roomsArray.add(r);
+                }
+              
+               rooms = roomsArray;
                 
 
-            //print result
-            
-            System.out.println(response.toString());
+                
             }
-            catch (IOException e) {
+            catch (Exception e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            assertEquals(200, responseCode);
+            
 
 
         }
 
+    @Test
+    public void test_roomCallStatusCode(){
     
+    getRoomsMethodInfo();
+    assertEquals(200, statusCode);
+}
 
-
+    @Test
+    public void test_roomsNotEmpty(){
+        getRoomsMethodInfo();
+               
+       if (rooms.isEmpty()){
+           assertFalse(true);
+       }
+        
+       assertFalse(rooms.isEmpty());
+    }
+    
+    
+    @Test
+    public void test_roomExists(){
+        getRoomsMethodInfo();
+               
+        String email = "";
+        for (Room room : rooms) {
+            if(room.getName().equals("[GSD] [Loeb] Study Room A")){
+                email = room.getEmail();
+            }
+            assertEquals("gsdloebStudyA@meetl.ink", email);
+        }       
+        
+    }
+    
+    
+    
 }
