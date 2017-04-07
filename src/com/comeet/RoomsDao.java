@@ -240,7 +240,6 @@ public class RoomsDao {
         if (metadata != null) {
             room.setCapacity(metadata.getCapacity());
             room.setCountry(metadata.getCountry());
-            room.setBuilding(metadata.getBuilding());
             room.setNavigationMap(metadata.getNavigationMap());
             room.setLatitude(metadata.getLatitude());
             room.setCapacity(metadata.getCapacity());
