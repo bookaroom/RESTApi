@@ -10,6 +10,21 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "room")
 public class Room implements Serializable {
     private static final long serialVersionUID = 1L;
+    
+    protected static final String NAME = "name";
+    protected static final String EMAIL = "email";
+    protected static final String ADDRESS = "address";
+    protected static final String COUNTRY = "country";
+    protected static final String STATE = "state";
+    protected static final String METRO = "metro";
+    protected static final String LATITUDE = "latitude";
+    protected static final String LONGITUDE = "longitude";
+    protected static final String CAPACITY = "capacity";
+    protected static final String PICTURE = "picture";
+    protected static final String NAVIGATION = "navigation";
+    protected static final String AMENITIES = "amenities";
+    protected static final String FREEBUSY = "freebusy";
+    
     private String name = "";
     private String email = "";
     private String address = "";
@@ -23,16 +38,18 @@ public class Room implements Serializable {
     private String navigation = "";
     private String roomPicture = "";
     private List<FreeBusySlot> freebusy;
+    private List<Amenity> amenities;
 
     public Room() {
         freebusy = new ArrayList<>();
+        amenities = new ArrayList<>();
     }
 
     public String getName() {
         return name;
     }
 
-    @XmlElement
+    @XmlElement(name = NAME)
     public void setName(String name) {
         this.name = name;
     }
@@ -45,9 +62,9 @@ public class Room implements Serializable {
     }
 
     /**
-     * Physical address.
+     * Smtp email address.
      */
-    @XmlElement
+    @XmlElement(name = EMAIL)
     public void setEmail(String email) {
         this.email = email;
     }
@@ -62,7 +79,7 @@ public class Room implements Serializable {
     /**
      * Physical address.
      */
-    @XmlElement
+    @XmlElement(name = ADDRESS)
     public void setAddress(String email) {
         this.address = email;
     }
@@ -71,7 +88,7 @@ public class Room implements Serializable {
         return country;
     }
 
-    @XmlElement
+    @XmlElement(name = COUNTRY)
     public void setCountry(String country) {
         this.country = country;
     }
@@ -80,7 +97,7 @@ public class Room implements Serializable {
         return state;
     }
 
-    @XmlElement
+    @XmlElement(name = STATE)
     public void setState(String state) {
         this.state = state;
     }
@@ -89,7 +106,7 @@ public class Room implements Serializable {
         return metroarea;
     }
 
-    @XmlElement
+    @XmlElement(name = METRO)
     public void setMetroarea(String metroarea) {
         this.metroarea = metroarea;
     }
@@ -98,7 +115,7 @@ public class Room implements Serializable {
         return latitude;
     }
 
-    @XmlElement
+    @XmlElement(name = LATITUDE)
     public void setLatitude(String latitude) {
         this.latitude = latitude;
     }
@@ -107,7 +124,7 @@ public class Room implements Serializable {
         return longitude;
     }
 
-    @XmlElement
+    @XmlElement(name = LONGITUDE)
     public void setLongitude(String longitude) {
         this.longitude = longitude;
     }
@@ -116,25 +133,16 @@ public class Room implements Serializable {
         this.navigation = url;
     }
 
-    @XmlElement
+    @XmlElement(name = NAVIGATION)
     public String getNavigationMap() {
         return this.navigation;
-    }
-
-    public void setBuilding(String building) {
-        this.building = building;
-    }
-
-    @XmlElement
-    public String getBuilding() {
-        return this.building;
     }
 
     public void setCapacity(Integer capacity) {
         this.capacity = capacity;
     }
 
-    @XmlElement
+    @XmlElement(name = CAPACITY)
     public Integer getCapacity() {
         return this.capacity;
     }
@@ -143,7 +151,7 @@ public class Room implements Serializable {
         this.roomPicture = picture;
     }
 
-    @XmlElement
+    @XmlElement(name = PICTURE)
     public String getRoomPic() {
         return this.roomPicture;
     }
@@ -151,10 +159,19 @@ public class Room implements Serializable {
     public void addFreeBusyTime(FreeBusySlot slot) {
         this.freebusy.add(slot);
     }
-    
-    @XmlElement
+
+    @XmlElement(name = FREEBUSY)
     public List<FreeBusySlot> getFreeBusy() {
         return this.freebusy;
+    }
+
+    public void setAmenities(List<Amenity> amenities) {
+        this.amenities = amenities;
+    }
+    
+    @XmlElement(name = AMENITIES)
+    public List<Amenity> getAmenities() {
+        return this.amenities;
     }
 
     
