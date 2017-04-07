@@ -16,7 +16,7 @@ public class MetroBuildingList {
      * Initialize class, setting the roomlist array.
      */
     public MetroBuildingList() {
-        roomlists = new HashMap();
+        roomlists = new HashMap<>();
     }
     
     /**

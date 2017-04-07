@@ -38,11 +38,11 @@ public class Room implements Serializable {
     private String navigation = "";
     private String roomPicture = "";
     private List<FreeBusySlot> freebusy;
-
     private List<Amenity> amenities;
 
     public Room() {
         freebusy = new ArrayList<>();
+        amenities = new ArrayList<>();
     }
 
     public String getName() {

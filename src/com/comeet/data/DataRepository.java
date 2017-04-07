@@ -4,19 +4,18 @@ import com.comeet.MetroBuildingList;
 import com.comeet.Room;
 import com.comeet.utilities.ApiLogger;
 import com.mysql.cj.jdbc.MysqlDataSource;
+
+import java.io.IOException;
 import java.io.InputStream;
-import java.net.ConnectException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.logging.Level;
 
 /**
  * Manages connections to and retrieves data from the database.
@@ -25,14 +24,24 @@ import java.util.logging.Level;
  */
 public class DataRepository {
 
+    private static final String CONNECTION_PROPERTIES_PATH = "/com/comeet/Properties/config.properties";
+    
     private Connection sqlConnection;
 
-    private void setupConn() throws Exception {
+    private void setupConnection() throws SQLException {
 
+        String propPath = CONNECTION_PROPERTIES_PATH;
         Properties prop = new Properties();
         InputStream input =
-                        getClass().getResourceAsStream("/com/comeet/Properties/config.properties");
-        prop.load(input);
+                        getClass().getResourceAsStream(propPath);
+        
+        try {
+            prop.load(input);
+        } catch (IOException ioe) {
+            String err = String.format("Failed to load SQL connection properties from path {0}", propPath);
+            ApiLogger.logger.severe(err);
+            throw new RuntimeException(err, ioe);
+        }
 
         MysqlDataSource dataSource = new MysqlDataSource();
         dataSource.setUser(prop.getProperty("dbuser"));
@@ -41,22 +50,11 @@ public class DataRepository {
         dataSource.setDatabaseName(prop.getProperty("dbname"));
 
         sqlConnection = dataSource.getConnection();
-
     }
 
-    private void closeConnection() throws Exception {
+    private void closeConnection() throws SQLException {
         sqlConnection.close();
     }
-
-    //Redundant method. Commenting it out until further confirmation
-    /*private void getRooms() throws Exception {
-
-        setupConn();
-
-        Statement stmt = sqlConnection.createStatement();
-        ResultSet rs = stmt.executeQuery("select * from Rooms");
-        // TODO - process result set to appropriate result
-    }*/
 
     /**
      * Retrieves room metadata from the comeet database.
@@ -64,11 +62,11 @@ public class DataRepository {
      * @param email The email address for the room.
      * @return Room metadata.
      */
-    public Room retrieveRoomMetadata(String email) throws Exception {
+    public Room retrieveRoomMetadata(String email) throws SQLException {
 
         Room roomMetadata = null;
 
-        setupConn();
+        setupConnection();
 
         if (sqlConnection == null || sqlConnection.isClosed()) {
             throw new SQLException("No connection to established to the database.");
@@ -107,7 +105,7 @@ public class DataRepository {
      */ 
     public List<MetroBuildingList> retrieveSearchCriteria(String domain) throws Exception {
 
-        setupConn();
+        setupConnection();
 
         if (sqlConnection == null || sqlConnection.isClosed()) {
             throw new SQLException("No connection to established to the database.");
@@ -121,7 +119,7 @@ public class DataRepository {
         ResultSet rs = stmt.getResultSet();
         rs.beforeFirst();
 
-        Map<String, MetroBuildingList> searchFields = new HashMap();
+        Map<String, MetroBuildingList> searchFields = new HashMap<>();
         
         while (rs.next()) {                
             
@@ -142,7 +140,7 @@ public class DataRepository {
         
         closeConnection();
         
-        return new ArrayList(searchFields.values());
+        return new ArrayList<>(searchFields.values());
 
     }
 }

@@ -46,22 +46,6 @@ public class UsersDao {
     public UsersDao(ExchangeService service) {
         this.service = service;
     }
-    
-    private List<String> getApptAttendees(Appointment appt) throws ServiceLocalException {
-        List<String> myAttendees = new ArrayList<String>();
-        AttendeeCollection ac = appt.getOptionalAttendees();
-        for (Attendee a : ac) {
-            myAttendees.add(a.getAddress());
-        }
-
-        ac = appt.getRequiredAttendees();
-        for (Attendee a : ac) {
-            myAttendees.add(a.getAddress());
-
-        }
-
-        return myAttendees;
-    }
 
     public String lookUpEmailAddress(String address) throws Exception {
         NameResolutionCollection nrc =
@@ -129,7 +113,7 @@ public class UsersDao {
         RoomsDao roomDao = new RoomsDao(null);
         String roomEmail = roomMap.get(appt.getLocation());
         theRoom.setEmail(roomEmail);
-        roomDao.retrieveMetadata(theRoom);
+        roomDao.populateMetadata(theRoom);
         theRoom.setName(appt.getLocation());
 
         return theRoom;
