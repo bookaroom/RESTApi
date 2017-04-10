@@ -102,7 +102,7 @@ public class Room implements Serializable {
         this.state = state;
     }
 
-    public String getMetroarea() {
+    public String getMetro() {
         return metroarea;
     }
 
@@ -134,7 +134,7 @@ public class Room implements Serializable {
     }
 
     @XmlElement(name = NAVIGATION)
-    public String getNavigationMap() {
+    public String getNavigation() {
         return this.navigation;
     }
 
@@ -152,7 +152,7 @@ public class Room implements Serializable {
     }
 
     @XmlElement(name = PICTURE)
-    public String getRoomPic() {
+    public String getPicture() {
         return this.roomPicture;
     }
 
@@ -161,7 +161,7 @@ public class Room implements Serializable {
     }
 
     @XmlElement(name = FREEBUSY)
-    public List<FreeBusySlot> getFreeBusy() {
+    public List<FreeBusySlot> getFreebusy() {
         return this.freebusy;
     }
 
