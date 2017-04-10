@@ -244,13 +244,13 @@ public class RoomsDao {
             if (metadata != null) {
                 room.setCapacity(metadata.getCapacity());
                 room.setCountry(metadata.getCountry());
-                room.setNavigationMap(metadata.getNavigationMap());
+                room.setNavigationMap(metadata.getNavigation());
                 room.setLatitude(metadata.getLatitude());
                 room.setCapacity(metadata.getCapacity());
                 room.setLongitude(metadata.getLongitude());
-                room.setMetroarea(metadata.getMetroarea());
+                room.setMetroarea(metadata.getMetro());
                 room.setState(metadata.getState());
-                room.setRoomPic(metadata.getRoomPic());
+                room.setRoomPic(metadata.getPicture());
             }
         } catch (SQLException sqle) {
             // Log the problem and continue gracefully.
@@ -313,13 +313,14 @@ public class RoomsDao {
         DateTime startTime = null;
         DateTime endTime = null;
 
-        DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
+        DateTimeFormatter fmt = ISODateTimeFormat.dateTimeNoMillis();
 
         if (start.isEmpty()) {
             startTime = DateTime.now();
             endTime = DateTime.now().plusDays(7);
         } else {
             startTime = fmt.parseDateTime(start);
+            endTime = fmt.parseDateTime(end);
             fmt.parseDateTime(end);
         }
 
