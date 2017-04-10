@@ -24,7 +24,7 @@ import java.util.Properties;
  */
 public class DataRepository {
 
-    private static final String CONNECTION_PROPERTIES_PATH = "/com/comeet/Properties/config.properties";
+    private static final String CONNECTION_PROPERTIES_PATH = "/com/comeet/properties/config.properties";
     
     private Connection sqlConnection;
 
