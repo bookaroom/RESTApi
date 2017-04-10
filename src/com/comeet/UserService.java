@@ -91,7 +91,7 @@ public class UserService {
      * @throws Exception On an unexpected error.
      */
     @GET
-    @Path("/{orgDomain}/users/{user}/meetings")
+    @Path("/{orgDomain}/meetings")
     @Produces("application/json")
     public List<Meeting> getUserMeetings(@Context HttpHeaders headers,
                     @PathParam("orgDomain") String orgDomain, @PathParam("user") String user,
