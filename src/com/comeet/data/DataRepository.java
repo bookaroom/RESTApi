@@ -78,18 +78,20 @@ public class DataRepository {
         stmt.execute();
         ResultSet rs = stmt.getResultSet();
         rs.beforeFirst();
-
-        if (rs.next()) {
-            roomMetadata = new Room();
-            roomMetadata.setCountry(rs.getString(rs.findColumn("Country")));
-            roomMetadata.setMetroarea(rs.getString(rs.findColumn("Metro")));
-            roomMetadata.setLatitude(Float.toString(rs.getFloat(rs.findColumn("Latitude"))));
-            roomMetadata.setLongitude(Float.toString(rs.getFloat(rs.findColumn("Longitude"))));
-            roomMetadata.setAddress(rs.getString(rs.findColumn("address")));
-            roomMetadata.setNavigationMap(rs.getString(rs.findColumn("navigation")));
-            roomMetadata.setCapacity(rs.getInt(rs.findColumn("Longitude")));
-            roomMetadata.setRoomPic(rs.getString(rs.findColumn("roomPic")));
-            roomMetadata.setState(rs.getString(rs.findColumn("state")));
+        
+        if (rs.isBeforeFirst()) {
+            if (rs.next()) {
+                roomMetadata = new Room();
+                roomMetadata.setCountry(rs.getString(rs.findColumn("Country")));
+                roomMetadata.setMetroarea(rs.getString(rs.findColumn("Metro")));
+                roomMetadata.setLatitude(Float.toString(rs.getFloat(rs.findColumn("Latitude"))));
+                roomMetadata.setLongitude(Float.toString(rs.getFloat(rs.findColumn("Longitude"))));
+                roomMetadata.setAddress(rs.getString(rs.findColumn("address")));
+                roomMetadata.setNavigationMap(rs.getString(rs.findColumn("navigation")));
+                roomMetadata.setCapacity(rs.getInt(rs.findColumn("Longitude")));
+                roomMetadata.setRoomPic(rs.getString(rs.findColumn("roomPic")));
+                roomMetadata.setState(rs.getString(rs.findColumn("state")));
+            }
         }
 
         closeConnection();
@@ -120,27 +122,31 @@ public class DataRepository {
         rs.beforeFirst();
 
         Map<String, MetroBuildingList> searchFields = new HashMap<>();
+        ArrayList<MetroBuildingList> result = null;
         
-        while (rs.next()) {                
+        if (rs.isBeforeFirst()) {
             
-            String buildingName = rs.getString(rs.findColumn("name"));
-            String metroName = rs.getString(rs.findColumn("Metroarea"));
-            String buildingEmail = rs.getString(rs.findColumn("email"));
-            
-            if (searchFields.get(metroName) == null) {
-                MetroBuildingList newList = new MetroBuildingList();
-                newList.setMetro(metroName);
-                newList.setRoomlist(buildingEmail, buildingName);
-                searchFields.put(metroName, newList);
-            } else {
-                MetroBuildingList roomLists = searchFields.get(metroName);
-                roomLists.setRoomlist(buildingEmail, metroName);;
-            } 
+            while (rs.next()) {                
+                
+                String buildingName = rs.getString(rs.findColumn("name"));
+                String metroName = rs.getString(rs.findColumn("Metroarea"));
+                String buildingEmail = rs.getString(rs.findColumn("email"));
+                
+                if (searchFields.get(metroName) == null) {
+                    MetroBuildingList newList = new MetroBuildingList();
+                    newList.setMetro(metroName);
+                    newList.setRoomlist(buildingEmail, buildingName);
+                    searchFields.put(metroName, newList);
+                } else {
+                    MetroBuildingList roomLists = searchFields.get(metroName);
+                    roomLists.setRoomlist(buildingEmail, metroName);;
+                } 
+            }
+        
+            result = new ArrayList<>(searchFields.values());
         }
         
         closeConnection();
-        
-        return new ArrayList<>(searchFields.values());
-
+        return result;
     }
 }

@@ -35,7 +35,7 @@ public class ApiLogger implements ServletContextListener {
             rootLogger.removeHandler(handlers[0]);
         }
 
-        logger.setLevel(Level.SEVERE);
+        logger.setLevel(Level.FINER);
         //proper path needs to be set
         fileTxt = new FileHandler("Logging.txt");
 
