@@ -31,7 +31,6 @@ public class Room implements Serializable {
     private String country = "USA";
     private String state = "";
     private String metroarea = "";
-    private String building = "";
     private String latitude = "";
     private String longitude = "";
     private Integer capacity = -1;

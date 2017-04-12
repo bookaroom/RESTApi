@@ -17,7 +17,6 @@
 
 package com.comeet.exchange;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import microsoft.exchange.webservices.data.core.request.HttpWebRequest;

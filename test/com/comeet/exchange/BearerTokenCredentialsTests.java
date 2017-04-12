@@ -4,13 +4,8 @@ import static org.mockito.Mockito.*;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
-
-import javax.ws.rs.core.HttpHeaders;
 
 import microsoft.exchange.webservices.data.core.request.HttpWebRequest;
 import microsoft.exchange.webservices.data.credential.ExchangeCredentials;
@@ -18,7 +13,6 @@ import microsoft.exchange.webservices.data.credential.ExchangeCredentials;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -37,6 +31,7 @@ public class BearerTokenCredentialsTests {
     @Test
     public void testConstruct_NullToken() {
         try {
+            @SuppressWarnings("unused")
             ExchangeCredentials creds = new BearerTokenCredentials(null);
             Assert.fail("Expected exception constructing BearerTokenCredentials from null.");
         } catch (IllegalArgumentException e) {
@@ -45,6 +40,7 @@ public class BearerTokenCredentialsTests {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testPrepareWebRequest_Headers() throws URISyntaxException {
         final String authorizationHeaderKey = "Authorization";
         final String bearerTokenPrefix = "Bearer";
