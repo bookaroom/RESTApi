@@ -143,6 +143,12 @@
 		    <artifactId>junit</artifactId>
 		    <version>4.7</version>
 		    <scope>test</scope>
+		    <exclusions>
+		    	<exclusion>
+					<groupId>org.hamcrest</groupId>
+					<artifactId>hamcrest-core</artifactId>
+				</exclusion>
+		    </exclusions>
 		</dependency>
 		
 		<!-- https://mvnrepository.com/artifact/org.mockito/mockito-all -->
@@ -151,6 +157,15 @@
 		    <artifactId>mockito-all</artifactId>
 		    <version>1.9.5</version>
 		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/org.hamcrest/hamcrest-library -->
+		<!-- This also brings in hamcrest-core and adds extra test tools -->
+		<dependency>
+		    <groupId>org.hamcrest</groupId>
+		    <artifactId>hamcrest-library</artifactId>
+		    <version>1.3</version>
+		</dependency>
+
 			
 	</dependencies>
 

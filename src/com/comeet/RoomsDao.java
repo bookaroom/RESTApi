@@ -5,6 +5,7 @@ import com.comeet.data.DataRepository;
 import com.comeet.exchange.ExchangeResourceException;
 import com.comeet.exchange.ExchangeServiceException;
 import com.comeet.utilities.ApiLogger;
+import com.comeet.utilities.Validator;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,6 +14,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.security.InvalidParameterException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -233,7 +235,7 @@ public class RoomsDao {
     /**
      * Fetches a room's metadata.
      * 
-     * @param room room The room of interest, to be filled in.
+     * @param room The room of interest, to be filled in.
      */
     public void populateMetadata(Room room) {
         DataRepository db = new DataRepository();
@@ -308,7 +310,7 @@ public class RoomsDao {
      * @throws Exception throws an exception
      */
     public List<Room> getBuildingRooms(String roomlistEmail, String start, String end)
-                    throws ExchangeResourceException {
+                    throws ExchangeResourceException,InvalidParameterException {
 
         DateTime startTime = null;
         DateTime endTime = null;
@@ -317,13 +319,24 @@ public class RoomsDao {
 
         if (start.isEmpty()) {
             startTime = DateTime.now();
-            endTime = DateTime.now().plusDays(7);
+            endTime = startTime.plusDays(7);
         } else {
             startTime = fmt.parseDateTime(start);
-            endTime = fmt.parseDateTime(end);
-            fmt.parseDateTime(end);
         }
+   
+        if (endTime == null) {
+            if (end.isEmpty()) {
+                endTime = startTime.plusDays(7);
+            } else {
+                endTime = fmt.parseDateTime(end);
+            }
+        } 
 
+        if (!Validator.validateEmail(roomlistEmail)) {
+            throw new InvalidParameterException(
+                            String.format("{0} is an invalid email address", roomlistEmail));
+        }
+            
         List<EmailAddress> roomEmails = getRoomsFromRoomlist(roomlistEmail);
 
         List<Room> rooms = new ArrayList<Room>();
@@ -341,7 +354,6 @@ public class RoomsDao {
 
         return rooms;
     }
-
 
     /**
      * Populates room availability.
