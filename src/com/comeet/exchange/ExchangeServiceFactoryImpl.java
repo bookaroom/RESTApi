@@ -10,7 +10,6 @@ import java.util.logging.Level;
 import microsoft.exchange.webservices.data.core.ExchangeService;
 import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion;
 import microsoft.exchange.webservices.data.credential.ExchangeCredentials;
-import microsoft.exchange.webservices.data.credential.TokenCredentials;
 import microsoft.exchange.webservices.data.credential.WebCredentials;
 
 public class ExchangeServiceFactoryImpl implements ExchangeServiceFactory {
@@ -69,11 +68,11 @@ public class ExchangeServiceFactoryImpl implements ExchangeServiceFactory {
             String shortToken = token.substring(0, token.length() < LOGGED_TOKEN_LENGTH ? token.length()
                             : LOGGED_TOKEN_LENGTH);
             ApiLogger.logger.log(Level.FINE,
-                            String.format("Using token-based credentials [{0}...]", shortToken));
-            try {
-                return new TokenCredentials(token);
+                            String.format("Using bearer token credentials [{0}...]", shortToken));
+			try {
+			    return new BearerTokenCredentials(token);
             } catch (Exception e) {
-                ApiLogger.logger.log(Level.SEVERE, "Error building exchange token-based credentials",
+                ApiLogger.logger.log(Level.SEVERE, "Error building exchange bearer token credentials",
                                 e);
                 throw new ExchangeClientException(e);
             }
