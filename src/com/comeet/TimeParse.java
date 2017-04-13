@@ -15,7 +15,7 @@ public class TimeParse {
     private Date endDate;
     
     /**
-     * Makes date objects.
+     * Get start date.
      * 
      */
     public Date getStart() {
