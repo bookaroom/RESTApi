@@ -1,8 +1,10 @@
 package com.comeet.data;
 
-import junit.framework.Assert;
+import com.comeet.Room;
 
 import java.util.ArrayList;
+
+import junit.framework.Assert;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -10,7 +12,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.comeet.Room;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -27,8 +28,7 @@ public class DataRepositoryTest {
     //Tests for retrieveMetaData
     
     /**
-     * check that empty string returns null object for retrieveRoomMetadata
-     * @throws Exception
+     * Check that empty string returns null object for retrieveRoomMetadata.
      */
     @Test
     public void retrieveMetaDataNullTest() throws Exception {
@@ -36,9 +36,7 @@ public class DataRepositoryTest {
     }
     
     /**
-     * check that class type of the return object on a successful call 
-     * for retrieveRoomMetadata
-     * @throws Exception
+     * Check that class type of the return object on a successful call for retrieveRoomMetadata.
      */
     @Test
     public void retrieveMetaDataClassTest() throws Exception {
@@ -46,8 +44,7 @@ public class DataRepositoryTest {
     }
     
     /**
-     * test for SQL Injection in the retrieveRoomMetadata method
-     * @throws Exception
+     * Test for SQL Injection in the retrieveRoomMetadata method.
      */
     @Test
     public void retrieveMetaDataInjectionTest() throws Exception {
@@ -55,9 +52,7 @@ public class DataRepositoryTest {
     }
     
     /**
-     * check for exception when null parameter passed in 
-     * for retrieveRoomMetadata
-     * @throws Exception
+     * Check for exception when null parameter passed in for retrieveRoomMetadata.
      */
     @Test
     public void retrieveMetaInputTest() throws Exception {
@@ -67,8 +62,7 @@ public class DataRepositoryTest {
     //Tests for retrieveSearchCriteria
     
     /**
-     * check that empty string returns null object for retrieveSearchCriteria
-     * @throws Exception
+     * check that empty string returns null object for retrieveSearchCriteria.
      */
     @Test
     public void retrieveSearchCriteriaNullTest() throws Exception {
@@ -76,9 +70,8 @@ public class DataRepositoryTest {
     }
     
     /**
-     * check that class type of the return object on a successful call 
-     * for retrieveSearchCriteria
-     * @throws Exception
+     * Check that class type of the return object on a successful call 
+     * for retrieveSearchCriteria.
      */
     @Test
     public void retrieveSearchCriteriaClassTest() throws Exception {
@@ -87,9 +80,8 @@ public class DataRepositoryTest {
     }
     
     /**
-     * check for exception when null parameter passed in 
-     * for retrieveSearchCriteria
-     * @throws Exception
+     * Check for exception when null parameter passed in 
+     * for retrieveSearchCriteria.
      */
     @Test
     public void retrieveSearchCriteriaInputTest() throws Exception {
@@ -97,8 +89,7 @@ public class DataRepositoryTest {
     }
     
     /**
-     * test for SQL Injection in the retrieveSearchCriteria method
-     * @throws Exception
+     * Test for SQL Injection in the retrieveSearchCriteria method.
      */
     @Test
     public void retrieveSearchCriteriaInjectionTest() throws Exception {

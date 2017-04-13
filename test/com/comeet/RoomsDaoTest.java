@@ -1,8 +1,13 @@
 package com.comeet;
 
+import com.comeet.exchange.ExchangeResourceException;
+import com.comeet.utilities.ApiLogger;
+
 import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
+
+import junit.framework.Assert;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
@@ -15,10 +20,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.comeet.exchange.ExchangeResourceException;
-import com.comeet.utilities.ApiLogger;
 
-import junit.framework.Assert;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RoomsDaoTest {
@@ -40,9 +42,8 @@ public class RoomsDaoTest {
     //      there are limited number of tests 
     
     /**
-     * check that class type of the return object on a successful call 
-     * for getCriteria
-     * @throws Exception
+     * Check that class type of the return object on a successful call 
+     * for getCriteria.
      */
     @Test
     public void getCriteriaClassTest() throws Exception {
@@ -54,11 +55,9 @@ public class RoomsDaoTest {
     //getBuildingsRooms tests
     
     /**
-     * tests date format for start and end string
-     * @throws InvalidParameterException
-     * @throws ExchangeResourceException
+     * Tests date format for start and end string.
      */
-    @Test(expected=Exception.class)
+    @Test(expected = Exception.class)
     public void getBuildingRoomsSizeTest() throws InvalidParameterException, 
                                                     ExchangeResourceException {
         
@@ -70,11 +69,9 @@ public class RoomsDaoTest {
     }
     
     /**
-     * Test for invalid email address
-     * @throws InvalidParameterException
-     * @throws ExchangeResourceException
+     * Test for invalid email address.
      */
-    @Test(expected=InvalidParameterException.class)
+    @Test(expected = InvalidParameterException.class)
     public void getBuildingRoomsEmailTest() throws InvalidParameterException, 
                                                ExchangeResourceException {
         DateTimeFormatter fmt = ISODateTimeFormat.dateTimeNoMillis();
@@ -91,11 +88,10 @@ public class RoomsDaoTest {
     }
     
     /**
-     * test for ISO dates
-     * @throws Exception
+     * Test for ISO dates.
      */
-    @Test(expected=IllegalArgumentException.class)
-    public void getBuildingRoomsISODateTest() throws Exception {
+    @Test(expected = IllegalArgumentException.class)
+    public void getBuildingRoomsIsoDateTest() throws Exception {
         String start = DateTime.now().toDateTimeISO().toString();
         String end = DateTime.now().plusDays(7).toDateTimeISO().toString();
         

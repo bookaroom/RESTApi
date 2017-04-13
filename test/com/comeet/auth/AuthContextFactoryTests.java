@@ -112,6 +112,7 @@ public class AuthContextFactoryTests extends AuthContextFactory {
             AuthContext resultContext = factory.buildContext(mockHeaders);
 
             // Verify
+            Assert.assertNotNull(resultContext);
             Assert.fail("AuthContext should throw exception when encountering no auth headers.");
         } catch (AuthContextException e) {
             Assert.assertNotNull(e);
