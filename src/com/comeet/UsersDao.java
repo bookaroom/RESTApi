@@ -147,11 +147,13 @@ public class UsersDao {
 
 
     public List<Appointment> findAppointments(String start, String end) throws Exception {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-        Date startDate = formatter.parse(start);// "2010-05-01 12:00:00");
-        Date endDate = formatter.parse(end); // "2010-05-30 13:00:00");
 
-
+        TimeParse tp = new TimeParse();
+        tp.parse(start, end);
+        Date startDate = tp.getStart();
+        Date endDate = tp.getEnd();
+        
+        
         CalendarFolder cf = CalendarFolder.bind(service, WellKnownFolderName.Calendar);
         FindItemsResults<Appointment> findResults =
                         cf.findAppointments(new CalendarView(startDate, endDate));
