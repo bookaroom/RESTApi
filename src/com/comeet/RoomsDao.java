@@ -130,10 +130,12 @@ public class RoomsDao {
         appointment.setSubject(subject);
         appointment.setBody(MessageBody.getMessageBodyFromText(body));
 
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-        formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
-        Date startDate = formatter.parse(start); // "2017-05-23|5:00:00");
-        Date endDate = formatter.parse(end); // "2017-05-23|6:00:00");
+        TimeParse tp = new TimeParse();
+        tp.parse(start, end);
+        Date startDate = tp.getStart();
+        Date endDate = tp.getEnd();
+        
+        
         appointment.setStart(startDate);
         appointment.setEnd(endDate);
 
