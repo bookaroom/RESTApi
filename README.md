@@ -58,3 +58,7 @@
 # Debugging the program
 
 To do local testing, you need to make sure you have Apache Tomcat installed on the machine and create an Apache Tomcat run configuration. 
+
+# Test with Postman
+
+[![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/356cf5ecffcaa423fe97)
