@@ -118,7 +118,7 @@ public class Meeting {
         return requiredattendees;
     }
 
-    public List<Person> getOptionaldattendees() {
+    public List<Person> getOptionalattendees() {
         return optionalattendees;
     }
     
