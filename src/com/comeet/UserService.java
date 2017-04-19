@@ -120,6 +120,47 @@ public class UserService {
 
 
     /**
+     * Implementing method for GET /{organization}/meetings/attendees?id=
+     * <p>
+     * Example URL:
+     * </p>
+     * 
+     * @param orgDomain Start of query range.
+     * @param id - meeting ID
+     * @return Meeting info within the query range.
+     * @throws ServiceResponseException If the result is not 200 OK
+     * @throws Exception On an unexpected error.
+     */
+    @POST
+    @Path("/{orgDomain}/meetings/attendees")
+    @Produces("application/json")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Attendees getAttendees(@Context HttpHeaders headers,
+                    @PathParam("orgDomain") String orgDomain, 
+                    @DefaultValue("") @FormParam("id") String id)
+                    throws ServiceResponseException, Exception {
+
+        try {
+            serviceFactory.setAuthContext(authFactory.buildContext(headers));
+
+            // Each call should define new instance of Service and DAO object
+            try (ExchangeService service = serviceFactory.create()) {
+                UsersDao ud = new UsersDao(service);
+                return ud.getAttendees(id);
+            }
+        } catch (AuthContextException e) {
+            // TODO Use OAuth2 for real.
+            e.printStackTrace();
+            throw new WebApplicationException(buildBearerChallenge(e).build());
+        } catch (ExchangeClientException e) {
+            // TODO Respond with appropriate HTTP code and json error detail.
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }    
+
+
+    /**
      * Implementing method for POST /{organization}/rooms/{roomRecipient}/reserve"
      * <p>
      * Example URL: http://localhost:8080/comeet/pfizer.com/rooms/100Main605@pfizer.com/reserve

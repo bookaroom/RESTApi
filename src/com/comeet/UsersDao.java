@@ -27,6 +27,7 @@ import microsoft.exchange.webservices.data.property.complex.Attendee;
 import microsoft.exchange.webservices.data.property.complex.AttendeeCollection;
 import microsoft.exchange.webservices.data.property.complex.EmailAddress;
 import microsoft.exchange.webservices.data.property.complex.EmailAddressCollection;
+import microsoft.exchange.webservices.data.property.complex.ItemId;
 import microsoft.exchange.webservices.data.property.complex.MessageBody;
 import microsoft.exchange.webservices.data.search.CalendarView;
 import microsoft.exchange.webservices.data.search.FindItemsResults;
@@ -201,6 +202,34 @@ public class UsersDao {
 
         return meetings;
     }
+
+
+    /**
+     * Gets attendees per meeting
+     * 
+     * @param id - unique id for meeting
+     * @return Attendee object containing meeting attendees
+     * @throws Exception If something went wrong.
+     */
+    public Attendees getAttendees(String id) throws Exception {
+        
+        ItemId itemId = new ItemId(id);
+       
+        Meeting m = new Meeting();
+
+        Attendees people = new Attendees();
+        
+        Appointment attAppt = Appointment.bind(service, itemId,
+                        new PropertySet(BasePropertySet.FirstClassProperties));
+       
+        AttendeeCollection req = attAppt.getRequiredAttendees();
+        AttendeeCollection opt = attAppt.getOptionalAttendees();
+        people.setRequiredattendees(attendees(null, attAppt, req));
+        people.setOptionaldattendees(attendees(null, attAppt, opt));
+
+        return people;
+    }
+
 
 
 
