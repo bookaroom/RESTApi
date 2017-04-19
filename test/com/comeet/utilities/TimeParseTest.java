@@ -21,8 +21,8 @@ public class TimeParseTest {
     @Test(expected=Exception.class)
     public void TimeParseISOTest() throws Exception
     {
-        String startDate = DateTime.now().toString();
-        String endDate = DateTime.now().toString();
+        String startDate = DateTime.now().toMutableDateTimeISO().toString();
+        String endDate = DateTime.now().toMutableDateTimeISO().toString();
         parseTime = new TimeParse();
         
         parseTime.parse(startDate, endDate);

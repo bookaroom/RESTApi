@@ -64,12 +64,8 @@ public class DataRepository {
      * @return Room metadata.
      */
     public Room retrieveRoomMetadata(String email) throws SQLException {
-
-        Room roomMetadata = null;
         
-        roomMetadata = getRoomMetadata(email);
-        
-
+        Room roomMetadata = getRoomMetadata(email);
         return roomMetadata;
     }
     
