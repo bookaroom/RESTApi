@@ -1,5 +1,6 @@
 package com.comeet.data;
 
+import com.comeet.Amenity;
 import com.comeet.MetroBuildingList;
 import com.comeet.Room;
 import com.comeet.utilities.ApiLogger;
@@ -65,36 +66,9 @@ public class DataRepository {
     public Room retrieveRoomMetadata(String email) throws SQLException {
 
         Room roomMetadata = null;
-
-        setupConnection();
-
-        if (sqlConnection == null || sqlConnection.isClosed()) {
-            throw new SQLException("No connection to established to the database.");
-        }
-
-        String stmtStr = "select * from Rooms where email = ?";
-        PreparedStatement stmt = sqlConnection.prepareStatement(stmtStr);
-        stmt.setString(1, email);
-        stmt.execute();
-        ResultSet rs = stmt.getResultSet();
-        rs.beforeFirst();
         
-        if (rs.isBeforeFirst()) {
-            if (rs.next()) {
-                roomMetadata = new Room();
-                roomMetadata.setCountry(rs.getString(rs.findColumn("Country")));
-                roomMetadata.setMetroarea(rs.getString(rs.findColumn("Metro")));
-                roomMetadata.setLatitude(Float.toString(rs.getFloat(rs.findColumn("Latitude"))));
-                roomMetadata.setLongitude(Float.toString(rs.getFloat(rs.findColumn("Longitude"))));
-                roomMetadata.setAddress(rs.getString(rs.findColumn("address")));
-                roomMetadata.setNavigationMap(rs.getString(rs.findColumn("navigation")));
-                roomMetadata.setCapacity(rs.getInt(rs.findColumn("Longitude")));
-                roomMetadata.setRoomPic(rs.getString(rs.findColumn("roomPic")));
-                roomMetadata.setState(rs.getString(rs.findColumn("state")));
-            }
-        }
-
-        closeConnection();
+        roomMetadata = getRoomMetadata(email);
+        
 
         return roomMetadata;
     }
@@ -148,5 +122,78 @@ public class DataRepository {
         
         closeConnection();
         return result;
+    }
+    
+    private Room getRoomMetadata(String email) throws SQLException {
+        Room roomMetadata = null;
+        
+        setupConnection();
+
+        if (sqlConnection == null || sqlConnection.isClosed()) {
+            throw new SQLException("No connection to established to the database.");
+        }
+        
+        String stmtStr = "select Country, Metro,Latitude,Longitude,address,"
+                        + "navigation,Longitude,roomPic,state from Rooms where email = ?";
+        PreparedStatement stmt = sqlConnection.prepareStatement(stmtStr);
+        stmt.setString(1, email);
+        stmt.execute();
+        ResultSet rs = stmt.getResultSet();
+        rs.beforeFirst();
+        
+        if (rs.isBeforeFirst()) {
+            if (rs.next()) {
+                roomMetadata = new Room();
+                roomMetadata.setCountry(rs.getString(rs.findColumn("Country")));
+                roomMetadata.setMetroarea(rs.getString(rs.findColumn("Metro")));
+                roomMetadata.setLatitude(Float.toString(rs.getFloat(rs.findColumn("Latitude"))));
+                roomMetadata.setLongitude(Float.toString(rs.getFloat(rs.findColumn("Longitude"))));
+                roomMetadata.setAddress(rs.getString(rs.findColumn("address")));
+                roomMetadata.setNavigationMap(rs.getString(rs.findColumn("navigation")));
+                roomMetadata.setCapacity(rs.getInt(rs.findColumn("Longitude")));
+                roomMetadata.setRoomPic(rs.getString(rs.findColumn("roomPic")));
+                roomMetadata.setState(rs.getString(rs.findColumn("state")));
+            }
+        }
+
+        if (roomMetadata != null) {
+            roomMetadata.addAmenities(getRoomAmenities(email)); 
+        }
+        
+        closeConnection();
+        
+        return roomMetadata;
+        
+    }
+    
+    private List<Amenity> getRoomAmenities(String email) throws SQLException {
+        
+        ArrayList<Amenity> amenities = new ArrayList<Amenity>();
+        
+        if (sqlConnection == null || sqlConnection.isClosed()) {
+            throw new SQLException("No connection to established to the database.");
+        }
+        
+        String stmtStr = "select a.Name,a.Description from Amenities a join "
+                        + "RoomAmenities ra on ra.amenities_id = a.id where ra.room_email = ?";
+        
+        PreparedStatement stmt = sqlConnection.prepareStatement(stmtStr);
+        stmt.setString(1, email);
+        stmt.execute();
+        
+        ResultSet rs = stmt.getResultSet();
+        rs.beforeFirst();
+        
+        if (rs.isBeforeFirst()) {
+            
+            while (rs.next()) {
+                Amenity roomAmenity = new Amenity();
+                roomAmenity.setName(rs.getString(rs.findColumn("Name")));
+                roomAmenity.setDescription(rs.getString(rs.findColumn("Description")));
+                amenities.add(roomAmenity);
+            }
+        }
+        
+        return amenities;
     }
 }
