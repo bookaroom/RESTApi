@@ -59,7 +59,7 @@ public class RoomsDaoTest {
      */
     @Test(expected = Exception.class)
     public void getBuildingRoomsSizeTest() throws InvalidParameterException, 
-                                                    ExchangeResourceException {
+                                                    ExchangeResourceException,Exception {
         
         String start = DateTime.now().toDateTimeISO().toString();
         String end = DateTime.now().plusDays(7).toDateTimeISO().toString();
@@ -73,7 +73,7 @@ public class RoomsDaoTest {
      */
     @Test(expected = InvalidParameterException.class)
     public void getBuildingRoomsEmailTest() throws InvalidParameterException, 
-                                               ExchangeResourceException {
+                                               ExchangeResourceException,Exception {
         DateTimeFormatter fmt = ISODateTimeFormat.dateTimeNoMillis();
         
         String start = fmt.print(DateTime.now().toDateTimeISO());

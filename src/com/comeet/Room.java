@@ -164,7 +164,7 @@ public class Room implements Serializable {
         return this.freebusy;
     }
 
-    public void setAmenities(List<Amenity> amenities) {
+    public void addAmenities(List<Amenity> amenities) {
         this.amenities = amenities;
     }
     

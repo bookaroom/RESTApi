@@ -5,6 +5,7 @@ import com.comeet.data.DataRepository;
 import com.comeet.exchange.ExchangeResourceException;
 import com.comeet.exchange.ExchangeServiceException;
 import com.comeet.utilities.ApiLogger;
+import com.comeet.utilities.TimeParse;
 import com.comeet.utilities.Validator;
 
 import java.io.File;
@@ -255,6 +256,8 @@ public class RoomsDao {
                 room.setMetroarea(metadata.getMetro());
                 room.setState(metadata.getState());
                 room.setRoomPic(metadata.getPicture());
+                room.addAmenities(metadata.getAmenities());
+                
             }
         } catch (SQLException sqle) {
             // Log the problem and continue gracefully.
@@ -312,27 +315,15 @@ public class RoomsDao {
      * @throws Exception throws an exception
      */
     public List<Room> getBuildingRooms(String roomlistEmail, String start, String end)
-                    throws ExchangeResourceException,InvalidParameterException {
+                    throws ExchangeResourceException,InvalidParameterException, Exception {
 
-        DateTime startTime = null;
-        DateTime endTime = null;
+        Date startDate = null;
+        Date endDate = null;
 
-        DateTimeFormatter fmt = ISODateTimeFormat.dateTimeNoMillis();
-
-        if (start.isEmpty()) {
-            startTime = DateTime.now();
-            endTime = startTime.plusDays(7);
-        } else {
-            startTime = fmt.parseDateTime(start);
-        }
-   
-        if (endTime == null) {
-            if (end.isEmpty()) {
-                endTime = startTime.plusDays(7);
-            } else {
-                endTime = fmt.parseDateTime(end);
-            }
-        } 
+        TimeParse parseTime = new TimeParse();
+        parseTime.parse(start, end);
+        startDate = parseTime.getStart();
+        endDate = parseTime.getEnd();
 
         if (!Validator.validateEmail(roomlistEmail)) {
             throw new InvalidParameterException(
@@ -351,9 +342,9 @@ public class RoomsDao {
             rooms.add(room);
         }
 
-        TimeWindow duration = new TimeWindow(startTime.toDate(), endTime.toDate());
+        TimeWindow duration = new TimeWindow(startDate, endDate);
         populateAvailability(rooms, duration);
-
+        
         return rooms;
     }
 
