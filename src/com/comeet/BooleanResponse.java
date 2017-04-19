@@ -8,12 +8,12 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 
-public class MyResponse implements Serializable {
+public class BooleanResponse implements Serializable {
 
     boolean success = true;
     
     
-    public MyResponse(boolean input) {
+    public BooleanResponse(boolean input) {
         success = input;
     }
     
