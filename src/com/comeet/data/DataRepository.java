@@ -130,7 +130,7 @@ public class DataRepository {
         }
         
         String stmtStr = "select Country, Metro,Latitude,Longitude,address,"
-                        + "navigation,Longitude,roomPic,state from Rooms where email = ?";
+                        + "navigation,capacity,roomPic,state from Rooms where email = ?";
         PreparedStatement stmt = sqlConnection.prepareStatement(stmtStr);
         stmt.setString(1, email);
         stmt.execute();
@@ -146,7 +146,7 @@ public class DataRepository {
                 roomMetadata.setLongitude(Float.toString(rs.getFloat(rs.findColumn("Longitude"))));
                 roomMetadata.setAddress(rs.getString(rs.findColumn("address")));
                 roomMetadata.setNavigationMap(rs.getString(rs.findColumn("navigation")));
-                roomMetadata.setCapacity(rs.getInt(rs.findColumn("Longitude")));
+                roomMetadata.setCapacity(rs.getInt(rs.findColumn("capacity")));
                 roomMetadata.setRoomPic(rs.getString(rs.findColumn("roomPic")));
                 roomMetadata.setState(rs.getString(rs.findColumn("state")));
             }
