@@ -30,7 +30,7 @@ public class Attendees {
     }
 
     @XmlElement
-    public void setOptionaldattendees(List<Person> people) {
+    public void setOptionalattendees(List<Person> people) {
         this.optionalattendees = people;
     }
 

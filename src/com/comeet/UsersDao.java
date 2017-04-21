@@ -225,7 +225,7 @@ public class UsersDao {
         AttendeeCollection req = attAppt.getRequiredAttendees();
         AttendeeCollection opt = attAppt.getOptionalAttendees();
         people.setRequiredattendees(attendees(null, attAppt, req));
-        people.setOptionaldattendees(attendees(null, attAppt, opt));
+        people.setOptionalattendees(attendees(null, attAppt, opt));
 
         return people;
     }

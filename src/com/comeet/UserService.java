@@ -151,11 +151,16 @@ public class UserService {
         } catch (AuthContextException e) {
             // TODO Use OAuth2 for real.
             e.printStackTrace();
+            ApiLogger.logger.log(Level.SEVERE, "Auth. Context error: get attendees", e);
             throw new WebApplicationException(buildBearerChallenge(e).build());
         } catch (ExchangeClientException e) {
             // TODO Respond with appropriate HTTP code and json error detail.
             e.printStackTrace();
+            ApiLogger.logger.log(Level.SEVERE, "Exchange client error: get attendees", e);
             throw new RuntimeException(e);
+        } catch (Exception e) {
+            ApiLogger.logger.log(Level.SEVERE, "Unspecified exception: meeting attendees", e);
+            throw e;
         }
     }    
 
