@@ -182,6 +182,7 @@ public class UsersDao {
             if (appt != null) {
                 Meeting m = new Meeting();
 
+                m.setId(appt.getId().getUniqueId());
                 m.setStart(appt.getStart());
                 m.setEnd(appt.getEnd());
                 m.setBody(appointmentBody(appt));

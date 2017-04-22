@@ -187,7 +187,7 @@ public class UserService {
     @Path("/{orgDomain}/rooms/{roomRecipient}/reserve")
     @Produces("application/json")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    public List<Meeting> reserveRoom(@Context HttpHeaders headers,
+    public BooleanResponse reserveRoom(@Context HttpHeaders headers,
                     @PathParam("orgDomain") String orgDomain,
                     @PathParam("roomRecipient") String roomRecipient,
                     @FormParam("subject") String subject, @FormParam("body") String body,
@@ -203,7 +203,8 @@ public class UserService {
             try (ExchangeService service = serviceFactory.create()) {
                 RoomsDao roomsDao = new RoomsDao(service);
                 List<String> recips = Arrays.asList(requiredRecipients.split(RECIPIENT_LIST_REGEX));
-                return roomsDao.makeAppointment(start, end, subject, body, recips, roomRecipient);
+                roomsDao.makeAppointment(start, end, subject, body, recips, roomRecipient);
+                return new BooleanResponse(true);
             }
         } catch (AuthContextException e) {
             // TODO Use OAuth2 for real.
