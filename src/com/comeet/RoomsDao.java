@@ -258,7 +258,7 @@ public class RoomsDao {
             }
         } catch (SQLException sqle) {
             // Log the problem and continue gracefully.
-            String err = String.format("Failed to retrieve metadata for room {0}", room.getEmail());
+            String err = String.format("Failed to retrieve metadata for room %s", room.getEmail());
             ApiLogger.logger.warning(err);
         }
     }
@@ -296,7 +296,7 @@ public class RoomsDao {
             ApiLogger.logger.exiting(CLASS_NAME, methodName, rooms);
             return new ArrayList<>(rooms);
         } catch (Exception e) {
-            String err = String.format("Failed to get rooms from roomlist {0}", email);
+            String err = String.format("Failed to get rooms from roomlist %s", email);
             ApiLogger.logger.severe(err);
             throw new ExchangeResourceException(err, e);
         }
@@ -336,7 +336,7 @@ public class RoomsDao {
 
         if (!Validator.validateEmail(roomlistEmail)) {
             throw new InvalidParameterException(
-                            String.format("{0} is an invalid email address", roomlistEmail));
+                            String.format("%s is an invalid email address", roomlistEmail));
         }
             
         List<EmailAddress> roomEmails = getRoomsFromRoomlist(roomlistEmail);
@@ -374,7 +374,7 @@ public class RoomsDao {
         try {
             response = service.getUserAvailability(attendees, duration, AvailabilityData.FreeBusy);
         } catch (Exception e) {
-            String err = String.format("Failed to retrieve user {0} availability at times {1}", attendees, duration);
+            String err = String.format("Failed to retrieve user %s availability at times %s", attendees, duration);
             ApiLogger.logger.warning(err);
             throw new ExchangeResourceException(err, e);
         }
