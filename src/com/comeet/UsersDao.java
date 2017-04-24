@@ -3,6 +3,9 @@ package com.comeet;
 import com.comeet.utilities.ApiLogger;
 import com.comeet.utilities.TimeParse;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -108,15 +111,28 @@ public class UsersDao {
     }
 
     
-    public Room populateRoomData(Map<String, String> roomMap, Appointment appt)
+    public Room populateRoomData(Meeting m, Appointment appt)
                     throws ServiceLocalException, Exception {
 
         Room theRoom = new Room();
-        RoomsDao roomDao = new RoomsDao(null);
-        String roomEmail = roomMap.get(appt.getLocation());
-        theRoom.setEmail(roomEmail);
-        roomDao.populateMetadata(theRoom);
+        List<Person> reqAtt = m.getRequiredattendees();
+        
+        for (int i = 0; i < reqAtt.size(); i++) {
+            Person p = reqAtt.get(i);
+            if (p.getName().equals(appt.getLocation())) {
+                theRoom.setEmail(p.getEmail());
+            }
+        }
+        
+        if (theRoom.getEmail().equals("")) {
+            return theRoom;
+        }
+        
         theRoom.setName(appt.getLocation());
+        
+        RoomsDao roomDao = new RoomsDao(null);
+        roomDao.populateMetadata(theRoom);
+        
 
         return theRoom;
     }
@@ -163,6 +179,46 @@ public class UsersDao {
         return findResults.getItems();
     }
 
+    
+    
+    /**
+     * Gets meeting data.
+     * 
+     * @param id Unique id for a meeting
+     * @return Meeting object with data entered
+     * @throws Exception If something went wrong.
+     */
+    public Meeting getMeetingData(String id) throws Exception {
+
+        Meeting m = new Meeting();
+        Appointment appt = Appointment.bind(service,new ItemId(id), new PropertySet(BasePropertySet.FirstClassProperties));
+
+        setMeetingAttributes(m, appt);
+        
+        requiredAttendees(m, appt);
+        optionalAttendees(m, appt);
+        
+        m.setMeetingcreator(meetingCreator(appt));
+        m.setRoom(populateRoomData(m, appt));
+
+        return m;
+    }
+    
+    public void setMeetingAttributes(Meeting m, Appointment appt) throws UnsupportedEncodingException, ServiceLocalException {
+        
+        String encodedId = URLEncoder.encode(appt.getId().getUniqueId(), "UTF-8");
+        
+        m.setId(encodedId);
+        m.setStart(appt.getStart());
+        m.setEnd(appt.getEnd());
+        m.setBody(appointmentBody(appt));
+        m.setSubject(appt.getSubject());
+        m.setLocation(appt.getLocation()); 
+
+    }
+    
+    
+
     /**
      * Gets meetings.
      * 
@@ -174,27 +230,15 @@ public class UsersDao {
     public List<Meeting> getUserMeetings(String start, String end) throws Exception {
 
         List<Meeting> meetings = new ArrayList<Meeting>();
-        Map<String, String> roomMap = roomMap();
-
         List<Appointment> results = findAppointments(start, end);
 
         for (Appointment appt : results) {
             if (appt != null) {
                 Meeting m = new Meeting();
-
-                m.setId(appt.getId().getUniqueId());
-                m.setStart(appt.getStart());
-                m.setEnd(appt.getEnd());
-                m.setBody(appointmentBody(appt));
-                m.setSubject(appt.getSubject());
-                m.setLocation(appt.getLocation());
-                m.setMeetingcreator(meetingCreator(appt));
-                m.setRoom(populateRoomData(roomMap, appt));
-
-                Appointment attAppt = Appointment.bind(service, appt.getId(),
-                                new PropertySet(BasePropertySet.FirstClassProperties));
-                requiredAttendees(m, attAppt);
-                optionalAttendees(m, attAppt);
+                
+                //System.out.println(appt.getId().getUniqueId());
+                
+                setMeetingAttributes(m, appt);
 
                 meetings.add(m);
             }

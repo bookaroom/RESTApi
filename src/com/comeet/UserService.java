@@ -7,6 +7,7 @@ import com.comeet.exchange.ExchangeServiceFactory;
 import com.comeet.exchange.ExchangeServiceFactoryImpl;
 import com.comeet.utilities.ApiLogger;
 
+import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
@@ -120,25 +121,29 @@ public class UserService {
 
 
     /**
-     * Implementing method for GET /{organization}/meetings/attendees?id=
+     * Implementing method for GET /{organization}/meeting/data?id=
      * <p>
      * Example URL:
      * </p>
      * 
      * @param orgDomain Start of query range.
      * @param id - meeting ID
-     * @return Meeting info within the query range.
+     * @return Meeting info for the specified meeting
      * @throws ServiceResponseException If the result is not 200 OK
      * @throws Exception On an unexpected error.
      */
-    @POST
-    @Path("/{orgDomain}/meetings/attendees")
+    @GET
+    @Path("/{orgDomain}/meeting/data")
     @Produces("application/json")
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    public Attendees getAttendees(@Context HttpHeaders headers,
+    public Meeting getAttendees(@Context HttpHeaders headers,
                     @PathParam("orgDomain") String orgDomain, 
-                    @DefaultValue("") @FormParam("id") String id)
+                    @DefaultValue("") @QueryParam("id") String id)
                     throws ServiceResponseException, Exception {
+
+        id = URLDecoder.decode(id, "UTF-8");
+        id = id.replaceAll(" ", "+");
+        
+        System.out.println("ID " + id);
 
         try {
             serviceFactory.setAuthContext(authFactory.buildContext(headers));
@@ -146,7 +151,7 @@ public class UserService {
             // Each call should define new instance of Service and DAO object
             try (ExchangeService service = serviceFactory.create()) {
                 UsersDao ud = new UsersDao(service);
-                return ud.getAttendees(id);
+                return ud.getMeetingData(id);
             }
         } catch (AuthContextException e) {
             // TODO Use OAuth2 for real.
