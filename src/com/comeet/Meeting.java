@@ -1,6 +1,7 @@
 package com.comeet;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -12,18 +13,16 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 public class Meeting {
 
-    
+    private String id = "";
     private String subject = "";
-    private String body;
-    private Date start;
-    private Date end;
-    private String location;
-    
-    private Room room;
-    
-    private Person meetingcreator;
-    private List<Person> requiredattendees;
-    private List<Person> optionalattendees;
+    private String body = "";
+    private Date start = new Date();
+    private Date end = new Date();
+    private String location = "";
+    private Room room = new Room();
+    private Person meetingcreator = new Person();
+    private List<Person> requiredattendees = new ArrayList<Person>();
+    private List<Person> optionalattendees = new ArrayList<Person>();
     
 
     // constructor
@@ -33,10 +32,20 @@ public class Meeting {
     }
 
     // setters
+    @XmlElement 
+    public void setId(String id) {
+        this.id = id;
+    }
     
     @XmlElement 
     public void setSubject(String subject) {
         this.subject = subject;
+    }
+    
+    
+    @XmlElement
+    public void setBody(String body) {
+        this.body = body;
     }
 
     
@@ -55,11 +64,9 @@ public class Meeting {
         this.location = location;
     }
 
-    
-    
     @XmlElement
-    public void setBody(String body) {
-        this.body = body;
+    public void setRoom(Room room) {
+        this.room = room;
     }
 
     @XmlElement
@@ -76,14 +83,15 @@ public class Meeting {
     public void setOptionaldattendees(List<Person> people) {
         this.optionalattendees = people;
     }
-
-    @XmlElement
-    public void setRoom(Room room) {
-        this.room = room;
-    }
     
     
     // getters
+
+    public String getId() {
+        return id;
+    }
+    
+    
     public Room getRoom() {
         return room;
     }
@@ -118,7 +126,7 @@ public class Meeting {
         return requiredattendees;
     }
 
-    public List<Person> getOptionaldattendees() {
+    public List<Person> getOptionalattendees() {
         return optionalattendees;
     }
     

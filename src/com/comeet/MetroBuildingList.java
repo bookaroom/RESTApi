@@ -16,15 +16,15 @@ public class MetroBuildingList {
      * Initialize class, setting the roomlist array.
      */
     public MetroBuildingList() {
-        roomlists = new HashMap();
+        roomlists = new HashMap<>();
     }
     
     /**
-     * Set the email of the building we need.
-     * @param email building email 
-     * @param name building name 
+     * Set the email of the roomlist.
+     * @param email roomlist email 
+     * @param name roomlist name 
      */
-    public void setBuilding(String email, String name) {
+    public void setRoomlist(String email, String name) {
         this.roomlists.put(email, name);
     }
     
@@ -40,7 +40,7 @@ public class MetroBuildingList {
      * Get email-building name Map of the metro area.
      * @return  Map of buildings and email addresses in the metro area  
      */
-    public Map<String,String>  getBuildings() {
+    public Map<String,String>  getRoomlists() {
         return roomlists; 
     }
     
