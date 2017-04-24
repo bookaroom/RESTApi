@@ -135,7 +135,7 @@ public class UserService {
     @GET
     @Path("/{orgDomain}/meeting/data")
     @Produces("application/json")
-    public Meeting getAttendees(@Context HttpHeaders headers,
+    public Meeting getMeetingData(@Context HttpHeaders headers,
                     @PathParam("orgDomain") String orgDomain, 
                     @DefaultValue("") @QueryParam("id") String id)
                     throws ServiceResponseException, Exception {
@@ -143,8 +143,6 @@ public class UserService {
         id = URLDecoder.decode(id, "UTF-8");
         id = id.replaceAll(" ", "+");
         
-        System.out.println("ID " + id);
-
         try {
             serviceFactory.setAuthContext(authFactory.buildContext(headers));
 
