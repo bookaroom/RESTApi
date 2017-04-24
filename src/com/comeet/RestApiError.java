@@ -1,44 +1,80 @@
 package com.comeet;
 
-import java.io.UnsupportedEncodingException;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+
+/** Api Error
+ * Follows this style guide: https://google.github.io/styleguide/jsoncstyleguide.xml#error
+ */
+@XmlRootElement(name = "error")
 public class RestApiError {
-    
+
     public static final String HEADER_KEY = "X-com.comeet.RestApiError";
     
     private String message;
-
-    public RestApiError(String message) {
-        this.message = message;
-    }
+    private int code;
+    private List<RestApiErrorDetail> errors;
+    
+    // This could be a much richer object.
+    // private RestApiError cause;
+    // private String traceId;
 
     /**
-     * Sets the message plaintext.
+     * Build a RestApiError.
      * @param message The message.
+     * @param statusCode The Http Status code.
      */
+    public RestApiError(String message, int statusCode) {
+        this.message = message;
+        this.code = statusCode;
+        this.errors = null;
+    }
+
+    @XmlElement
     public void setMessage(String message) {
         this.message = message;
     }
 
-    /**
-     * The message in this string.
-     * @return message.
-     */
     public String getMessage() {
         return message;
     }
-    
+
     /**
-     * Gets the message in a format safe for transmission in an HTTP header.
-     * @return Encoded string.
+     * Http status code.
      */
-    public String getEncodedMessage() {
-        try {
-            return java.net.URLEncoder.encode(message, java.nio.charset.StandardCharsets.UTF_8.name());
-        } catch (UnsupportedEncodingException e) {
-            assert e == null;
-            return "";
-        }
+    @XmlElement
+    public void setCode(int statusCode) {
+        this.code = statusCode;
     }
-    
+
+    /**
+     * Http status code.
+     */
+    public int getCode() {
+        return code;
+    }
+
+    /**
+     * Detailed errors.
+     */
+    public synchronized List<RestApiErrorDetail> getErrors() {
+        if (errors == null) {
+            errors = new ArrayList<RestApiErrorDetail>();
+        }
+        return errors;
+    }
+
+    /**
+     * Detailed errors.
+     */
+    public void setErrors(List<RestApiErrorDetail> errors) {
+        this.errors = errors;
+    }
 }
