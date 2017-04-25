@@ -52,12 +52,14 @@
 # Setting up the project
 
 1. Download Eclipse Java Neon EE IDE
-2. Install maven on your local machine
-3. Load the project as a Maven project
+2. Install maven and Apache Tomcat on your local machine
+3. Clone the repository onto your local machine
+4. Load the project as a Maven project in Eclipse
 
 # Debugging the program
 
-To do local testing, you need to make sure you have Apache Tomcat installed on the machine and create an Apache Tomcat run configuration. 
+To do local testing, you need to make sure you have Apache Tomcat installed on the machine and create an Apache Tomcat run configuration. This will start an instance of the application. To navigate
+to the routes, append the desired route at the end of the application route path.  
 
 # Test with Postman
 
