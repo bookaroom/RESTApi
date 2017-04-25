@@ -38,7 +38,7 @@ public class DataRepository {
         try {
             prop.load(input);
         } catch (IOException ioe) {
-            String err = String.format("Failed to load SQL connection properties from path {0}", propPath);
+            String err = String.format("Failed to load SQL connection properties from path %s", propPath);
             ApiLogger.logger.severe(err);
             throw new RuntimeException(err, ioe);
         }

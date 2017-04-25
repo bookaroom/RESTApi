@@ -62,7 +62,7 @@ public class ExchangeServiceFactoryImpl implements ExchangeServiceFactory {
         String token = authContext.getBearerToken();
         if (token != null && token.length() > 0) {
             String shortToken = token.substring(0, token.length() < LOGGED_TOKEN_LENGTH ? token.length() : LOGGED_TOKEN_LENGTH);
-            ApiLogger.logger.log(Level.FINE, String.format("Using bearer token credentials [{0}...]", shortToken));
+            ApiLogger.logger.log(Level.FINE, String.format("Using bearer token credentials [%s...]", shortToken));
             try {
                 return new BearerTokenCredentials(token);
             } catch (Exception e) {
@@ -80,7 +80,7 @@ public class ExchangeServiceFactoryImpl implements ExchangeServiceFactory {
                 maskedPasswordBuilder.append(MASKED_PASSWORD_CHAR);
             }
             ApiLogger.logger.log(Level.FINE,
-                            String.format("Using basic credentials [{0}:{1}]", username, maskedPasswordBuilder.toString()));
+                            String.format("Using basic credentials [%s:%s]", username, maskedPasswordBuilder.toString()));
             return new WebCredentials(username, password);
         }
 
