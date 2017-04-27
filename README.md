@@ -38,7 +38,7 @@
 5. Get Data about a specific meeting
 	- GET `/{organization}/meeting/data`
 	- Parameters:
-	- `id (i.e.) JISFIJD23492834FSJSND`
+	- `id=JISFIJD23492834FSJSND`
 	- Example: `https://api.meetl.ink:8443/comeet/meetl.ink/meeting/data`
 
 
