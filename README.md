@@ -4,10 +4,10 @@
 
 1. Get organization metro areas
 	- GET `/{organization}/metros`
-	- Example: `/google.com/metros`
+	- Example: `https://api.meetl.ink:8443/comeet/meetl.ink/metros`
 
 2. Search Rooms
-	- GET `/{organization}/roomlists/roomlist/rooms?start=&end=`
+	- GET `/{organization}/roomlists/roomlist/rooms`
 	- Parameters:
 	- `roomlist=Bldg_CambMaOneStorySt@meetl.ink`
 	- `start=2017-04-15T09:00:00-0400`
@@ -17,19 +17,20 @@
 3. Reserve a room
 	- POST `/{organization}/rooms/roomrecipient/reserve`
 	- Parameters:
+	- `roomrecipient=CambMa1Story305@meetl.ink`
 	- `start=2017-04-15T09:00:00-0400`
 	- `end=2017-04-15T10:05:00-0400`
 	- `subject=Title`
 	- `body=Description`
 	- `required=CambMa1Story305@meetl.ink,jablack@meetl.ink`
 	- `optional=jillblack@meetl.ink`
-	- Example URL: https://api.meetl.ink:8443/comeet/meetl.ink/rooms/jablack@meetl.ink/reserve
+	- Example URL: `https://api.meetl.ink:8443/comeet/meetl.ink/rooms/jablack@meetl.ink/reserve`
 
 4. Get all the Meetings of a user
 	- GET `/{organization}/meetings`
 	- Parameters:
-	- `start (i.e. 2017-04-15T07:00:00-0400)`
-	- `end (i.e. 2017-04-15T20:00:00-0400)`
+	- `start=2017-04-15T07:00:00-0400`
+	- `end=2017-04-15T20:00:00-0400`
 	- Example: `https://api.meetl.ink:8443/comeet/meetl.ink/meetings`
 
 	Note: If the start parameter is empty, the next seven days are retrieved. If the start parameter is empty, the end parameter is ignored. 
