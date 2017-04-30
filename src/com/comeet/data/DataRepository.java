@@ -83,7 +83,8 @@ public class DataRepository {
             throw new SQLException("No connection to established to the database.");
         }
 
-        String stmtStr = "select email, name, Metroarea from Roomlist where domain = ?;";
+        String stmtStr = "select email, name, Metroarea from Roomlist "
+                        + "where domain = ? order by Metroarea;";
         PreparedStatement stmt = sqlConnection.prepareStatement(stmtStr);
         stmt.setString(1, domain);
         stmt.execute();
@@ -109,7 +110,7 @@ public class DataRepository {
                     searchFields.put(metroName, newList);
                 } else {
                     MetroBuildingList roomLists = searchFields.get(metroName);
-                    roomLists.setRoomlist(buildingEmail, metroName);;
+                    roomLists.setRoomlist(buildingEmail, buildingName);;
                 } 
             }
         
