@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 public class Meeting {
 
-    
+    private String id = "";
     private String subject = "";
     private String body = "";
     private Date start = new Date();
@@ -32,6 +32,10 @@ public class Meeting {
     }
 
     // setters
+    @XmlElement 
+    public void setId(String id) {
+        this.id = id;
+    }
     
     @XmlElement 
     public void setSubject(String subject) {
@@ -79,11 +83,15 @@ public class Meeting {
     public void setOptionaldattendees(List<Person> people) {
         this.optionalattendees = people;
     }
-
-
     
     
     // getters
+
+    public String getId() {
+        return id;
+    }
+    
+    
     public Room getRoom() {
         return room;
     }

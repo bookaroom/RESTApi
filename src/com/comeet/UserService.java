@@ -7,6 +7,7 @@ import com.comeet.exchange.ExchangeServiceFactory;
 import com.comeet.exchange.ExchangeServiceFactoryImpl;
 import com.comeet.utilities.ApiLogger;
 
+import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
@@ -117,6 +118,54 @@ public class UserService {
             throw new RuntimeException(e);
         }
     }
+
+
+    /**
+     * Implementing method for GET /{organization}/meeting/data?id=
+     * <p>
+     * Example URL:
+     * </p>
+     * 
+     * @param orgDomain Start of query range.
+     * @param id - meeting ID
+     * @return Meeting info for the specified meeting
+     * @throws ServiceResponseException If the result is not 200 OK
+     * @throws Exception On an unexpected error.
+     */
+    @GET
+    @Path("/{orgDomain}/meeting/data")
+    @Produces("application/json")
+    public Meeting getMeetingData(@Context HttpHeaders headers,
+                    @PathParam("orgDomain") String orgDomain, 
+                    @DefaultValue("") @QueryParam("id") String id)
+                    throws ServiceResponseException, Exception {
+
+        id = URLDecoder.decode(id, "UTF-8");
+        id = id.replaceAll(" ", "+");
+        
+        try {
+            serviceFactory.setAuthContext(authFactory.buildContext(headers));
+
+            // Each call should define new instance of Service and DAO object
+            try (ExchangeService service = serviceFactory.create()) {
+                UsersDao ud = new UsersDao(service);
+                return ud.getMeetingData(id);
+            }
+        } catch (AuthContextException e) {
+            // TODO Use OAuth2 for real.
+            e.printStackTrace();
+            ApiLogger.logger.log(Level.SEVERE, "Auth. Context error: get attendees", e);
+            throw new WebApplicationException(buildBearerChallenge(e).build());
+        } catch (ExchangeClientException e) {
+            // TODO Respond with appropriate HTTP code and json error detail.
+            e.printStackTrace();
+            ApiLogger.logger.log(Level.SEVERE, "Exchange client error: get attendees", e);
+            throw new RuntimeException(e);
+        } catch (Exception e) {
+            ApiLogger.logger.log(Level.SEVERE, "Unspecified exception: meeting attendees", e);
+            throw e;
+        }
+    }    
 
 
     /**
