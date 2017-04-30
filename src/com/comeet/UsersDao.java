@@ -19,6 +19,7 @@ import java.util.logging.Level;
 import microsoft.exchange.webservices.data.core.ExchangeService;
 import microsoft.exchange.webservices.data.core.PropertySet;
 import microsoft.exchange.webservices.data.core.enumeration.property.BasePropertySet;
+import microsoft.exchange.webservices.data.core.enumeration.property.BodyType;
 import microsoft.exchange.webservices.data.core.enumeration.property.WellKnownFolderName;
 import microsoft.exchange.webservices.data.core.enumeration.search.ResolveNameSearchLocation;
 import microsoft.exchange.webservices.data.core.exception.service.local.ServiceLocalException;
@@ -191,7 +192,12 @@ public class UsersDao {
     public Meeting getMeetingData(String id) throws Exception {
 
         Meeting m = new Meeting();
-        Appointment appt = Appointment.bind(service,new ItemId(id), new PropertySet(BasePropertySet.FirstClassProperties));
+        
+        PropertySet ps = new PropertySet();
+        ps.setBasePropertySet(BasePropertySet.FirstClassProperties);
+        ps.setRequestedBodyType(BodyType.Text);
+        
+        Appointment appt = Appointment.bind(service,new ItemId(id), ps);
 
         setMeetingAttributes(m, appt);
         
