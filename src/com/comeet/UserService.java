@@ -206,7 +206,8 @@ public class UserService {
             try (ExchangeService service = serviceFactory.create()) {
                 RoomsDao roomsDao = new RoomsDao(service);
                 List<String> recips = Arrays.asList(requiredRecipients.split(RECIPIENT_LIST_REGEX));
-                roomsDao.makeAppointment(start, end, subject, body, recips, roomRecipient);
+                List<String> optional = Arrays.asList(optionalRecipients.split(RECIPIENT_LIST_REGEX));
+                roomsDao.makeAppointment(start, end, subject, body, recips, roomRecipient, optional);
                 return new BooleanResponse(true);
             }
         } catch (AuthContextException e) {
