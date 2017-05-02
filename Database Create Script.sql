@@ -1,0 +1,74 @@
+CREATE DATABASE comeetdb
+	CHARACTER SET latin1
+	COLLATE latin1_swedish_ci;
+	
+-- create Amenities table
+CREATE TABLE comeetdb.Amenities (
+  Id INT(11) NOT NULL AUTO_INCREMENT,
+  Name VARCHAR(50) DEFAULT NULL,
+  Description VARCHAR(255) DEFAULT NULL,
+  PRIMARY KEY (Id)
+)
+ENGINE = INNODB
+AUTO_INCREMENT = 5
+AVG_ROW_LENGTH = 4096
+CHARACTER SET latin1
+COLLATE latin1_swedish_ci;
+
+-- create Roomlist table
+CREATE TABLE comeetdb.Roomlist (
+  email VARCHAR(100) NOT NULL,
+  Metroarea VARCHAR(20) DEFAULT NULL,
+  name VARCHAR(100) DEFAULT NULL,
+  id INT(11) DEFAULT NULL,
+  domain VARCHAR(25) DEFAULT NULL,
+  PRIMARY KEY (email),
+  UNIQUE INDEX id (id)
+)
+ENGINE = INNODB
+AVG_ROW_LENGTH = 910
+CHARACTER SET latin1
+COLLATE latin1_swedish_ci;
+
+-- create Rooms table
+CREATE TABLE comeetdb.Rooms (
+  email VARCHAR(50) NOT NULL,
+  capacity INT(11) DEFAULT NULL,
+  Country VARCHAR(255) DEFAULT NULL,
+  Metro VARCHAR(255) DEFAULT NULL,
+  Building VARCHAR(255) DEFAULT NULL,
+  Latitude FLOAT DEFAULT NULL,
+  Longitude FLOAT DEFAULT NULL,
+  address VARCHAR(255) DEFAULT NULL,
+  features VARCHAR(255) DEFAULT NULL,
+  domain VARCHAR(255) DEFAULT NULL,
+  navigation VARCHAR(255) DEFAULT NULL,
+  roomPic VARCHAR(255) DEFAULT NULL,
+  state VARCHAR(10) DEFAULT NULL,
+  roomlist_id INT(11) DEFAULT NULL,
+  PRIMARY KEY (email),
+  CONSTRAINT fk_roomlist_id FOREIGN KEY (roomlist_id)
+    REFERENCES comeetdb.Roomlist(id) ON DELETE RESTRICT ON UPDATE RESTRICT
+)
+ENGINE = INNODB
+AVG_ROW_LENGTH = 645
+CHARACTER SET latin1
+COLLATE latin1_swedish_ci;
+
+-- create RoomAmenities table
+
+CREATE TABLE comeetdb.RoomAmenities (
+  room_email VARCHAR(255) DEFAULT NULL,
+  amenities_id INT(11) DEFAULT NULL,
+  Id INT(11) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (Id),
+  CONSTRAINT FK_RoomAmenities_amenity FOREIGN KEY (amenities_id)
+    REFERENCES comeetdb.Amenities(Id) ON DELETE NO ACTION ON UPDATE RESTRICT,
+  CONSTRAINT FK_RoomAmenities_roomemail FOREIGN KEY (room_email)
+    REFERENCES comeetdb.Rooms(email) ON DELETE NO ACTION ON UPDATE RESTRICT
+)
+ENGINE = INNODB
+AUTO_INCREMENT = 385
+AVG_ROW_LENGTH = 132
+CHARACTER SET latin1
+COLLATE latin1_swedish_ci;
