@@ -2,12 +2,19 @@ package com.comeet;
 
 import com.comeet.exchange.ExchangeResourceException;
 import com.comeet.utilities.ApiLogger;
+import com.comeet.utilities.ExchangeUtility;
 
 import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 
 import junit.framework.Assert;
+import microsoft.exchange.webservices.data.core.ExchangeService;
+import microsoft.exchange.webservices.data.core.PropertySet;
+import microsoft.exchange.webservices.data.core.enumeration.property.BasePropertySet;
+import microsoft.exchange.webservices.data.core.enumeration.service.DeleteMode;
+import microsoft.exchange.webservices.data.core.service.item.Appointment;
+import microsoft.exchange.webservices.data.property.complex.Attendee;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
@@ -37,9 +44,139 @@ public class RoomsDaoTest {
         //ApiLogger.setup();
     }
     
-    //GetCriteria tests
-    //Note: This method calls a data repository class method therefore
-    //      there are limited number of tests 
+    private String username = "";
+    private String password = "";
+    
+   
+    /**
+     * Checks that the location name is properly set according to the room.
+     */
+    @Test
+    public void setLocationGsdTest() throws Exception {
+        
+        if (username.length() == 0) {
+            System.out.println("Test did not proceed: No username and password.");
+            return;
+        }
+        
+        String room = "gsdloebStudyB@meetl.ink";
+        
+        // create appointment with one person
+        ExchangeService service = ExchangeUtility.getExchangeService(username, password);
+        Appointment appt = new Appointment(service);
+        appt.getRequiredAttendees().add(new Attendee(room));
+        appt.save();
+        
+        RoomsDao rd = new RoomsDao(service);
+        rd.setLocationName(appt, room);
+        
+        Assert.assertTrue(appt.getLocation().equals("[GSD] [Loeb] Study Room B"));
+        
+        // delete test appointment
+        appt.delete(DeleteMode.HardDelete);
+        
+    }
+
+    /**
+     * Checks that the location is correctly set from the room's email. 
+     */
+    @Test
+    public void setLocationTest() throws Exception {
+        
+        if (username.length() == 0) {
+            System.out.println("Test did not proceed: No username and password.");
+            return;
+        }
+        
+        String room = "CambMa1Story305@meetl.ink";
+        
+        // create appointment with one person
+        ExchangeService service = ExchangeUtility.getExchangeService(username, password);
+        Appointment appt = new Appointment(service);
+        appt.getRequiredAttendees().add(new Attendee(room));
+        appt.save();
+        
+        RoomsDao rd = new RoomsDao(service);
+        rd.setLocationName(appt, room);
+        
+        
+        Assert.assertTrue(appt.getLocation().equals("[HES][OneStorySt] Room 305"));
+        
+        // delete test appointment
+        appt.delete(DeleteMode.HardDelete);
+        
+        
+    }
+    
+    
+    
+    /**
+     * Test that the look-up email method works when using an Attendee's address.
+     */
+    @Test
+    public void lookUpEmailTest() throws Exception {
+        
+        if (username.length() == 0) {
+            System.out.println("Test did not proceed: No username and password.");
+            return;
+        }
+        
+        // create appointment with one person
+        ExchangeService service = ExchangeUtility.getExchangeService(username, password);
+        Appointment appt = new Appointment(service);
+        appt.getRequiredAttendees().add(new Attendee("CambMa1Story305@meetl.ink"));
+        appt.save();
+        
+        // retrieve the appointment
+        Appointment retrieved = Appointment.bind(service, appt.getId(),
+                        new PropertySet(BasePropertySet.FirstClassProperties));
+        Attendee attend = retrieved.getRequiredAttendees().getItems().get(0);
+        
+        RoomsDao rd = new RoomsDao(service);
+        
+        // test that lookUpEmail works correctly
+        String result = rd.lookUpEmailAddress(attend.getAddress());
+        Assert.assertTrue(result.equals("CambMa1Story305@meetl.ink"));
+        
+        // delete test appointment
+        appt.delete(DeleteMode.HardDelete);
+    }
+    
+
+    /**
+     * Check that the lookup email method works with an address from GSD.
+     */
+    @Test
+    public void lookUpGsdEmailTest() throws Exception {
+        
+        if (username.length() == 0) {
+            System.out.println("Test did not proceed: No username and password.");
+            return;
+        }
+        
+        // create appointment with one person
+        ExchangeService service = ExchangeUtility.getExchangeService(username, password);
+        Appointment appt = new Appointment(service);
+        appt.getRequiredAttendees().add(new Attendee("gsdloebStudyA@meetl.ink"));
+        appt.save();
+        
+        // retrieve the appointment
+        Appointment retrieved = Appointment.bind(service, appt.getId(),
+                        new PropertySet(BasePropertySet.FirstClassProperties));
+        Attendee attend = retrieved.getRequiredAttendees().getItems().get(0);
+        
+        
+        RoomsDao rd = new RoomsDao(service);
+        
+        // test that lookUpEmail works correctly
+        String result = rd.lookUpEmailAddress(attend.getAddress());
+        Assert.assertTrue(result.equals("gsdloebStudyA@meetl.ink"));
+        
+        // delete test appointment
+        appt.delete(DeleteMode.HardDelete);
+        
+    }
+    
     
     /**
      * Check that class type of the return object on a successful call 
