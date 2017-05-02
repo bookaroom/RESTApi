@@ -1,0 +1,2 @@
+# Java files are apparently crlf.
+*.java text eol=crlf 
