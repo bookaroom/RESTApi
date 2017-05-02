@@ -1,5 +1,6 @@
 package com.comeet;
 
+import com.comeet.utilities.TimeOutput;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -7,6 +8,7 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+
 
 
 @XmlRootElement(name = "meeting") 
@@ -98,11 +100,11 @@ public class Meeting {
     
     
     public String getStart() {
-        return (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(start) ;
+        return TimeOutput.dateToString(start);
     }
 
     public String getEnd() {
-        return (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(end) ;
+        return TimeOutput.dateToString(end);
     }
 
     public String getLocation() {
