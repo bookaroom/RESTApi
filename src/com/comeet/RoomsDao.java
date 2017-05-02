@@ -5,6 +5,7 @@ import com.comeet.data.DataRepository;
 import com.comeet.exchange.ExchangeResourceException;
 import com.comeet.exchange.ExchangeServiceException;
 import com.comeet.utilities.ApiLogger;
+import com.comeet.utilities.TimeOutput;
 import com.comeet.utilities.TimeParse;
 import com.comeet.utilities.Validator;
 
@@ -370,7 +371,6 @@ public class RoomsDao {
             throw new ExchangeResourceException(err, e);
         }
         
-        DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
         
         // From https://msdn.microsoft.com/en-us/library/aa564001(v=exchg.150).aspx:
         // The availability information for each user appears in a unique FreeBusyResponse element.
@@ -386,8 +386,8 @@ public class RoomsDao {
             for (CalendarEvent evnt : attendeeCalendar.getCalendarEvents()) {
                 room.addFreeBusyTime(
                             // TODO: Are these times pre-biased for timezones?
-                            new FreeBusySlot(fmt.print(new DateTime(evnt.getStartTime())),
-                                            fmt.print(new DateTime(evnt.getEndTime())),
+                            new FreeBusySlot(TimeOutput.dateTimeToString(new DateTime(evnt.getStartTime())),
+                                            TimeOutput.dateTimeToString(new DateTime(evnt.getEndTime())),
                                             evnt.getFreeBusyStatus().name()));
             }
         }
