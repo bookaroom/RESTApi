@@ -125,6 +125,17 @@ public class UsersDao {
             }
         }
         
+        // room email in resources
+        AttendeeCollection resources = appt.getResources();
+        for (Attendee room : resources) {
+            
+            if (room.getName().equals(appt.getLocation())) {
+                String email = lookUpEmailAddress(room.getAddress());
+                theRoom.setEmail(email);
+                break;
+            }
+        }
+        
         if (theRoom.getEmail().equals("")) {
             return theRoom;
         }
