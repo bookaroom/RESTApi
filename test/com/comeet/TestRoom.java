@@ -33,7 +33,7 @@ public class TestRoom {
     
     @Test
     public void testGetCountry(){
-        room.setAddress("US");
+        room.setCountry("US");
         assertEquals("US", room.getCountry());  
     }
     

@@ -2,6 +2,7 @@ package com.comeet;
 
 import static org.junit.Assert.assertEquals;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -37,13 +38,15 @@ public class TestMeeting {
     @Test
     public void testGetStart(){
         meeting.setStart(new Date((long) 12345.12));
-        assertEquals(new Date((long) 12345.12), meeting.getStart());
+        SimpleDateFormat simple = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        assertEquals(simple.format(new Date((long) 12345.12)), meeting.getStart());
     }
     
     @Test
     public void testGetEnd(){
         meeting.setEnd(new Date((long) 12345.12));
-        assertEquals(new Date((long) 12345.12), meeting.getEnd());
+        SimpleDateFormat simple = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        assertEquals(simple.format(new Date((long) 12345.12)), meeting.getEnd());
     }
     
    
