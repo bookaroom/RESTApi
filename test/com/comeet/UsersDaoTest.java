@@ -22,8 +22,8 @@ public class UsersDaoTest {
     // login information such jack black's email and password.
     // Otherwise, the test will not run and a message will print.
     
-    private static String username = "jiwhite@meetl.ink";
-    private static String password = "CapstoneE599";
+    private static String username = "";
+    private static String password = "";
     
     /**
      * Return username.
