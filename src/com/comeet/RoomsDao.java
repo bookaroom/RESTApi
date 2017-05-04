@@ -125,7 +125,7 @@ public class RoomsDao {
      * @throws Exception //TODO: For unknown reasons.
      */
     public List<Meeting> makeAppointment(String start, String end, String subject, String body,
-                    List<String> recips, String roomRecipient)
+                    List<String> recips, String roomRecipient, List<String> optional)
                     throws ServiceResponseException, Exception {
 
         Appointment appointment = new Appointment(service);
@@ -148,6 +148,12 @@ public class RoomsDao {
         }
         appointment.getRequiredAttendees().add(roomRecipient);
 
+        for (String s : optional) {
+            if (s.trim().length() > 0) {
+                appointment.getOptionalAttendees().add(s);
+            }
+        }
+        
         appointment.save();
         setLocationName(appointment, roomRecipient);
 
